@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[< Prev](./htrld-eslnt.html) | [Home](/) | [Next >](./routing.html)
+#npm as a task runner
+
+###Configure npm scripts command
+Make the following changes to `package.json` 
+``` javascript
+/** [project]\package.json **/
+...
+  "scripts": {
+    "dev": "webpack-dev-server --content-base src/client/public --inline --hot",
+    "lint": "eslint src/client/app/**/*.js",
+    "lint:watch": "esw src/client/app/**/*.js -w"
+  },
+...
+```
+
+###Running tasks in parallel
+Install npm-run-all
+```
+[project]> npm i -D npm-run-all
+```
+Add script to run tasks in parallel
+``` javascript
+/** [project]\package.json **/
+...
+    "start": "npm-run-all --parallel dev lint:watch",
+...
+```
+
+Keep hot reloading and linting running
+
+That's it! Just `Ctrl+S` and see the browser from now on.
+```
+[project]> npm start
+```
+
+<br />
+[< Prev](./htrld-eslnt.html) | [Home](/) | [Next >](./routing.html)
+</xmp>
+
+<script src="./assets/strapdown.js"></script>
+</html>

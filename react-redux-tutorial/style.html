@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[< Prev](./routing.html) | [Home](/) | [Next >](./app-structure.html)
+#Style - CSS
+
+###Bootstrap with webpack
+install bootstrap and webpack loaders
+```
+[project]> npm i -D bootstrap style-loader css-loader file-loader svg-inline-loader
+```
+
+add bootstrap to our app
+``` javascript
+/** [project]\src\client\app\main.js **/
+import '../../../node_modules/bootstrap/dist/css/bootstrap.css';
+import '../../../node_modules/bootstrap/dist/css/bootstrap-theme.css';
+....
+```
+
+let webpack know how to handle `*.css` files
+``` javascript
+/** [project]\webpack.config.js **/
+...
+    module: {
+        loaders: [
+            { test: /\.js?$/, include : APP_DIR, loader: 'babel'},
+            { test: /\.css$/, loader: "style-loader!css-loader" },
+            { test: /\.eot$/, loader: "file" },
+            { test: /\.woff$/, loader: "file" },
+            { test: /\.woff2$/, loader: "file" },
+            { test: /\.ttf$/, loader: "file" },
+            { test: /\.svg$/, loader: 'svg-inline' }
+        ],
+    },
+...
+```
+
+**webpack will now bundle css files in the bundle.min.js file.** Did you see any changes in the browser?
+
+<br />
+[< Prev](./routing.html) | [Home](/) | [Next >](./app-structure.html)
+</xmp>
+
+<script src="./assets/strapdown.js"></script>
+</html>

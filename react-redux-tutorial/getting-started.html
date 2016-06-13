@@ -41,14 +41,14 @@ Create a the `index.html` with the following content
 Create a the `main.js` with the following content
 
 ``` javascript
-<!-- [project]\src\client\app\main.js -->
+/** [project]\src\client\app\main.js **/
 import React from 'react';
 import {render} from 'react-dom';
 
 class App extends React.Component {
   render () {
     return (
-        <div className="AppMain">
+        <div className="app-main">
             Hello World!
         </div>
     );
@@ -73,7 +73,7 @@ Create Babel configuration file with content
 }
 ```
 
-###WEBPACK
+###webpack
 ```
 [project]> npm i -D webpack
 ```
@@ -104,7 +104,7 @@ module.exports =  {
 };
 ```
 
-###Build
+###Build and See
 ```
 [project]> node_modules\.bin\webpack
 ```
@@ -113,5 +113,5 @@ Browse the file `[project]\src\client\public\index.html` in your browser
 [Home](/) | [Next >](./components.html)
 </xmp>
 
-<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>
+<script src="./assets/strapdown.js"></script>
 </html>

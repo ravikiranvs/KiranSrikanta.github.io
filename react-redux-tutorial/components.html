@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[< Prev](./getting-started.html) | [Home](/) | [Next >](./htrld-eslnt.html)
+#React Components
+
+###Using properties
+add attributes to the `<App />` component.
+``` javascript
+/** [project]\src\client\app\main.js **/
+...
+        <div className="app-main">
+            {this.props.message}
+        </div>
+...
+...
+render(
+  <App message="Hello World!"></App>,
+  document.getElementById('app')
+);
+```
+
+Remember to build again
+```
+[project]> node_modules\.bin\webpack
+```
+
+###Creating a child component
+Add a new header component
+``` javascript
+/** [project]\src\client\app\common\components\header.js **/
+import React from 'react';
+
+class Header extends React.Component {
+  render () {
+    return (
+        <div className="header">
+            {this.props.message}
+        </div>
+    );
+  }
+}
+
+export default Header;
+```
+Refer the `<Header>` component in `<App>`
+``` javascript
+/** [project]\src\client\app\main.js **/
+...
+import Header from './common/components/header'
+...
+        <div className="app-main">
+            <Header message={this.props.message} />
+        </div>
+...
+```
+###State
+Modify the `<App>` to have state and use it in a text box.
+``` javascript
+/** [project]\src\client\app\main.js **/
+import React from 'react';
+import {render} from 'react-dom';
+import Header from './common/components/header'
+
+class App extends React.Component {
+  constructor() {
+    super();
+    this.state = { message: 'Hello World' }
+  }
+
+  render() {
+    return (
+      <div className="app-main">
+        <Header message={this.state.message} />
+        <input type="text" value={this.state.message} />
+      </div>
+    );
+  }
+}
+
+render(
+  <App></App>,
+  document.getElementById('app')
+);
+```
+Build the app and check. **Notice something wrong!**
+
+###Setting State
+Use the textbox's change event to change the `<App>`'s state.
+``` javascript
+/** [project]\src\client\app\main.js **/
+...
+  onChange(event) {
+    this.setState({ message: event.target.value });
+  }
+...
+...
+        <input type="text" value={this.state.message} onChange={this.onChange} />
+...
+```
+Build the app and check. Does it work now?
+<br />
+<span style="color:white">this.onChange = this.onChange.bind(this);</span>
+<br />
+[< Prev](./getting-started.html) | [Home](/) | [Next >](./htrld-eslnt.html)
+</xmp>
+
+<script src="./assets/strapdown.js"></script>
+</html>

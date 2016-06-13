@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[< Prev](./task-runner.html) | [Home](/) | [Next >](./style.html)
+#Routing
+
+###install react-router
+```
+[project]> npm i -S react-router
+```
+
+###Refactor code for router
+Modify the `main.js` to have the router as the root component.
+``` javascript
+/** [project]\src\client\app\main.js **/
+import {Router, browserHistory} from 'react-router';
+import React from 'react';
+import {render} from 'react-dom';
+import routes from './routes';
+
+render(
+  <Router history={browserHistory} routes={routes} />,
+  document.getElementById('app')
+);
+```
+
+routes.js
+``` javascript
+/** [project]\src\client\app\routes.js **/
+import {IndexRoute, Route} from 'react-router';
+import App from './common/components/app';
+import HomePage from './home/components/home-page';
+import React from 'react';
+
+export default (
+  <Route path="/" component={App}>
+    <IndexRoute component={HomePage} />
+  </Route>
+);
+```
+
+app.js
+``` javascript
+/** [project]\src\client\app\common\components\app.js **/
+import React, {PropTypes} from 'react';
+import Header from './header';
+
+class App extends React.Component {
+  render () {
+    return (
+      <div className="app-main">
+        <Header />
+        {this.props.children}
+      </div>
+    );
+  }
+}
+
+App.propTypes = {
+    'children': PropTypes.object.isRequired
+};
+
+export default App;
+```
+Removing the props from the `<Header />` component.
+``` javascript
+/** [project]\src\client\app\common\components\header.js **/
+import React, {PropTypes} from 'react';
+
+class Header extends React.Component {
+  render() {
+    return (
+      <div className="header">
+        header
+      </div>
+    );
+  }
+}
+
+export default Header;
+```
+
+home-page.js
+``` javascript
+/** [project]\src\client\app\home\components\home-page.js **/
+import React from 'react';
+
+class HomePage extends React.Component {
+  render() {
+    return (
+      <div className="home-page">
+        HOME
+      </div>
+    );
+  }
+}
+
+export default HomePage;
+```
+
+**This should configure routing in our app.**
+
+<br />
+[< Prev](./task-runner.html) | [Home](/) | [Next >](./style.html)
+</xmp>
+
+<script src="./assets/strapdown.js"></script>
+</html>
