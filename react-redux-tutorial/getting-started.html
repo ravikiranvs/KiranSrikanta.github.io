@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[Home](/) | [Next >](./components.html)
+#Getting Started
+
+###Create project directory
+Create a folder where you'll be creating the app.
+
+###npm init
+```
+[project]> npm init
+```
+use all the defaults.
+
+###install react.js
+```
+[project]> npm i -S react react-dom
+```
+
+###index.html
+Create a the `index.html` with the following content
+
+``` html
+<!-- [project]\src\client\public\index.html -->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>react.js workbench</title>
+  </head>
+  <body>
+    <div id="app" />
+    <script src="./assets/bundle.min.js" type="text/javascript"></script>
+  </body>
+</html>
+```
+
+###main.js
+Create a the `main.js` with the following content
+
+``` javascript
+<!-- [project]\src\client\app\main.js -->
+import React from 'react';
+import {render} from 'react-dom';
+
+class App extends React.Component {
+  render () {
+    return (
+        <div className="AppMain">
+            Hello World!
+        </div>
+    );
+  }
+}
+
+render(
+  <App></App>,
+  document.getElementById('app')
+);
+```
+
+###Babel
+```
+[project]> npm i -D babel-loader babel-preset-es2015 babel-preset-react
+```
+Create Babel configuration file with content
+``` javascript
+/** [project]\.babelrc **/
+{
+  "presets" : ["es2015", "react"]
+}
+```
+
+###WEBPACK
+```
+[project]> npm i -D webpack
+```
+
+Create the config file for Webpack
+``` javascript
+/** [project]\webpack.config.js **/
+var webpack = require('webpack');
+var path = require('path');
+
+var BUILD_DIR = path.resolve(__dirname, 'src/client/public/assets');
+var APP_DIR = path.resolve(__dirname, 'src/client/app');
+
+// webpack options
+module.exports =  {
+    entry: [APP_DIR + '/main.js'],
+    output: {
+        publicPath: '/assets/',
+        path: BUILD_DIR,
+        filename: 'bundle.min.js'
+    },
+    devtool: 'inline-source-map',
+    module: {
+        loaders: [
+            { test: /\.js?$/, include : APP_DIR, loader: 'babel'}
+        ],
+    }
+};
+```
+
+###Build
+```
+[project]> node_modules\.bin\webpack
+```
+Browse the file `[project]\src\client\public\index.html` in your browser
+
+[Home](/) | [Next >](./components.html)
+</xmp>
+
+<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>
+</html>
