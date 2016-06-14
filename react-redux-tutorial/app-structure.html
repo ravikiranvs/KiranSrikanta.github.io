@@ -5,8 +5,52 @@
 <xmp theme="united" style="display:none;">
 [< Prev](./style.html) | [Home](./) | [Next >](./app-structure.html)
 #Application Structure
+###The Header
+Modify the header to be like this: [Bootstrap Nav](http://getbootstrap.com/components/#nav-tabs)
+``` html
+/** [project]\src\client\app\common\components\header.js **/
+...
+      <ul className="header nav nav-tabs">
+        <li role="presentation">
+          <IndexLink to="/" activeClassName="active">Home</IndexLink>
+        </li>
+        <li role="presentation">
+          <Link to="/todo" activeClassName="active">TODO</Link>
+        </li>
+      </ul>
+...
+```
+See what is rendered.
 
+#####Composing a link component
+``` javascript
+...
+/** [project]\src\client\app\common\components\header.js **/
+class NavLink extends React.Component {
+  render() {
+    const isActive = this.context.router.isActive(this.props.to, true);
+    // eslint-disable-next-line no-ternary
+    let className = isActive ? 'active' : '';
 
+    return (
+      <li role="presentation" className={className}>
+        <Link {...this.props}>
+          {this.props.children}
+        </Link>
+      </li>
+    );
+  }
+}
+
+NavLink.propTypes = {
+  children: PropTypes.object,
+  to: PropTypes.string.isRequired
+};
+
+NavLink.contextTypes = {router: PropTypes.object};
+...
+```
+Try this ouf for both Link and IndexLink
 
 <br />
 [< Prev](./style.html) | [Home](./) | [Next >](./app-structure.html)
