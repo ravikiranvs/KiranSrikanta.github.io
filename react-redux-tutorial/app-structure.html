@@ -9,6 +9,9 @@
 Modify the header to be like this: [Bootstrap Nav](http://getbootstrap.com/components/#nav-tabs)
 ``` html
 /** [project]\src\client\app\common\components\header.js **/
+import {IndexLink, Link} from 'react-router';
+...
+
 ...
       <ul className="header nav nav-tabs">
         <li role="presentation">
@@ -35,7 +38,7 @@ class NavLink extends React.Component {
     return (
       <li role="presentation" className={className}>
         <Link {...this.props}>
-          {this.props.children}
+          {this.props.linkTitle}
         </Link>
       </li>
     );
@@ -43,14 +46,14 @@ class NavLink extends React.Component {
 }
 
 NavLink.propTypes = {
-  children: PropTypes.object,
+  linkTitle: PropTypes.string.isRequired,
   to: PropTypes.string.isRequired
 };
 
 NavLink.contextTypes = {router: PropTypes.object};
 ...
 ```
-Try this ouf for both Link and IndexLink
+Try this out for both Link and IndexLink
 
 ###Home Page
 content for home page.
