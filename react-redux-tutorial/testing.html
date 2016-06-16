@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[< Prev](./react-extention.html) | [Home](./) | [Next >](./testing.html)
+#Testing
+###Anatomy of a *.spec.js
+``` javascript
+describe('User', function () {
+    describe('Users details', function () {
+        it('should contain the full name', function (done) {
+            expect(getCurrentUser().name).toEqual('Full Name');
+        });
+    });
+});
+```
+
+###Testing tools comparison
+| <img src=".\assets\Karma.png" width="100px" /><h6></h6> | <img src=".\assets\mocha.png" width="50px" /> | <img src=".\assets\chai.png" width="45px" /> | <img src=".\assets\jasmine.png" width="50px" /> 
+--------------- | --------- | ------- | --- | --- 
+Runs Tests      | ✓ Browser | ✓ Node | ✗   | ✗ 
+Describe Tests  | ✗         | ✓      | ✗   | ✓ 
+Assert Liberary | ✗         | ✗      | ✓   | ✓ 
+
+###What we'll be using
+<img src=".\assets\Karma.png" width="100px" />&nbsp;&nbsp;&nbsp;&nbsp;+&nbsp;&nbsp;&nbsp;&nbsp;<img src=".\assets\mocha.png" width="50px" />&nbsp;&nbsp;&nbsp;&nbsp;+&nbsp;&nbsp;&nbsp;&nbsp;<img src=".\assets\chai.png" width="45px" />
+
+###Installation
+```
+[project]> npm i -D react-addons-test-utils karma karma-chrome-launcher karma-ie-launcher karma-cli karma-sourcemap-loader karma-webpack mocha karma-mocha karma-mocha-reporter karma-chai-plugins chai-jquery jquery fs
+```
+
+###Configuration
+#####bundle all `*.spec.js` files
+``` javascript
+/** [project]\tests.bundle.js **/
+var context = require.context('./src/client/app', true, /.+\.spec\.js?$/);
+context.keys().forEach(context);
+module.exports = context;
+```
+
+#####webpack for testing
+``` javascript
+/** [project]\webpack.config.test.js **/
+var webpack = require('webpack');
+var path = require('path');
+
+var APP_DIR = path.resolve(__dirname, 'src/client/app');
+
+module.exports = {
+  devtool: 'inline-source-map',
+  noInfo: true,
+  module: {
+    loaders: [
+      { test: /\.js?$/, loader: 'babel-loader', exclude: /node_modules/ },
+      { test: /\.css$/, loader: "style-loader!css-loader" },
+      { test: /\.eot$/, loader: "file" },
+      { test: /\.woff$/, loader: "file" },
+      { test: /\.woff2$/, loader: "file" },
+      { test: /\.ttf$/, loader: "file" },
+      { test: /\.svg$/, loader: 'svg-inline' }
+    ]
+  }
+};
+```
+
+#####karma configuration
+``` javascript
+/** [project]\karma.conf.js **/
+var path = require('path');
+var webpack = require('webpack');
+var WebpackTestConfig = require('./webpack.config.test.js');
+
+process.env.NODE_ENV = 'test';
+
+module.exports = function (config) {
+  config.set({
+    browsers: [ 'Chrome', 'IE' ],
+    // karma only needs to know about the test bundle
+    files: [
+      'tests.bundle.js'
+    ],
+    frameworks: [ 'chai', 'mocha' ],
+    plugins: [
+      'karma-chrome-launcher',
+      'karma-ie-launcher',
+      'karma-chai-plugins',
+      'karma-mocha',
+      'karma-sourcemap-loader',
+      'karma-webpack',
+      'karma-mocha-reporter'
+    ],
+    // run the bundle through the webpack and sourcemap plugins
+    preprocessors: {
+      'tests.bundle.js': [ 'webpack', 'sourcemap' ]
+    },
+    reporters: [ 'mocha' ],
+    singleRun: true,
+    // webpack config object
+    webpack: WebpackTestConfig,
+    webpackMiddleware: {
+      noInfo: true,
+    }
+  });
+};
+```
+
+###Our first testcase
+#####helper file for writing tests for components
+``` javascript
+/** [project]\src\client\app\test-helper.js **/
+/*eslint-disable */
+import React from 'react';
+import ReactDOM from 'react-dom';
+import TestUtils from 'react-addons-test-utils';
+import chaiJQuery from 'chai-jquery';
+import jQuery from 'jquery';
+
+const renderComponent = function renderComponent (Component,
+  props = {}) {
+    const componentInstance = TestUtils.renderIntoDocument(
+        <Component {...props} />
+    );
+
+    return jQuery(ReactDOM.findDOMNode(componentInstance));
+};
+
+jQuery.fn.simulate = function simulate (eventName, value) {
+    if (value) {
+        this.val(value);
+    }
+
+    const firstElementIndex = 0;
+
+    TestUtils.Simulate[eventName](this[firstElementIndex]);
+};
+
+chaiJQuery(chai, chai.util, jQuery);
+
+export {renderComponent};
+```
+
+#####testcase
+``` javascript
+/** [project]\src\client\app\home\components\home-page.spec.js **/
+/*eslint-disable */
+import { renderComponent } from '../../test-helper';
+import HomePage from './home-page';
+import React from 'react';
+
+describe('HomePage', function () {
+  let component;
+  beforeEach(function () {
+    component = renderComponent(HomePage);
+  });
+
+  it('contains component class', function () {
+    expect(component).to.have.class('home-page');
+  });
+});
+```
+
+###Run tests
+add npm scripts
+``` javascript
+/** [project]\package.json **/
+...
+  "scripts": {
+    "start": "npm-run-all --parallel dev test:watch lint:watch",
+    "dev": "webpack-dev-server --content-base src/client/public --inline --hot --noInfo true --port 9000",
+    "lint": "eslint src/client/app/**/*.js",
+    "lint:watch": "esw src/client/app/**/*.js -w",
+    "test": "karma start",
+    "test:watch": "karma start --auto-watch --no-single-run"
+  },
+...
+```
+
+Single run
+```
+[project]> npm run test
+```
+
+Run with build and lint
+```
+[project]> npm start
+```
+<br />
+[< Prev](./react-extention.html) | [Home](./) | [Next >](./testing.html)
+</xmp>
+
+<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>
+</html>
