@@ -61,18 +61,6 @@ render(
 );
 ```
 
-###Babel
-```
-[project]> npm i -D babel-loader babel-preset-es2015 babel-preset-react
-```
-Create Babel configuration file with content
-``` javascript
-/** [project]\.babelrc **/
-{
-  "presets" : ["es2015", "react"]
-}
-```
-
 ###webpack
 ```
 [project]> npm i -D webpack
@@ -102,6 +90,18 @@ module.exports =  {
         ],
     }
 };
+```
+
+###Babel
+```
+[project]> npm i -D babel-loader babel-preset-es2015 babel-preset-react
+```
+Create Babel configuration file with content
+``` javascript
+/** [project]\.babelrc **/
+{
+  "presets" : ["es2015", "react"]
+}
 ```
 
 ###Build and See
