@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[< Prev](./todo-list.html) | [Home](./) | [Next >](./todo-add-edit.html)
+#Todo Form
+
+###route with params
+``` javascript
+/** [project]\src\client\app\routes.js **/
+...
+import TodoEditPage from './todo/components/todo-edit-page';
+...
+
+...
+    <Route path="todo/edit" component={TodoEditPage} />
+    <Route path="todo/edit/:id" component={TodoEditPage} />
+...
+```
+
+###The todo edit component.
+[Bootstrap form](http://getbootstrap.com/css/#forms-example)
+
+[Bootstrap form validation](http://getbootstrap.com/css/#forms-control-validation)
+``` javascript
+/** [project]\src\client\app\todo\components\todo-edit-page.js **/
+import React, {PropTypes} from 'react';
+
+class TodoEditPage extends React.Component {
+  constructor() {
+    super();
+    const todo = {
+        title: '',
+        description: '',
+        date: '',
+        completed: false
+    };
+
+    this.state = {
+      todo,
+      errors: { titleRequired: false }
+    };
+
+    this.onFormSubmit = this.onFormSubmit.bind(this);
+  }
+
+  onFormSubmit(event) {
+    event.preventDefault();
+    if (this.state.todo.title === '') {
+      this.setState({errors: {titleRequired: true}});
+    } else {
+      this.setState({errors: {titleRequired: false}});
+    }
+  }
+
+  render() {
+    // eslint-disable-next-line no-ternary
+    let titleGroupClass = this.state.errors.titleRequired ? 'form-group has-error' : 'form-group';
+
+    return (
+      <div className="todo-edit-page container">
+        <h1>Add Task</h1>
+        <form role="form" onSubmit={this.onFormSubmit}>
+          <div className={titleGroupClass}>
+            <label data-for="title">Title</label>
+            <input type="text" className="form-control" id="title" value={this.state.todo.title} />
+          </div>
+
+          <div className="form-group">
+            <label data-for="description">Description</label>
+            <textarea className="form-control" id="description" value={this.state.todo.description} />
+          </div>
+
+          <div className="form-group">
+            <label data-for="date">Date</label>
+            <input type="date" className="form-control" id="date" value={this.state.todo.date} />
+          </div>
+
+          <button type="submit" className="btn btn-default">Submit</button>
+        </form>
+      </div>
+    )
+  }
+}
+
+TodoEditPage.propTypes = { todo: PropTypes.object };
+
+export default TodoEditPage;
+```
+
+###add todo link
+``` javascript
+/** [project]\src\client\app\todo\components\todo-page.js **/
+...
+        <Link to='/todo/edit'>Add Task</Link>
+...
+```
+
+###edit todo link
+``` javascript
+/** [project]\src\client\app\todo\components\todo-list.js **/
+...
+        <td><Link to={`todo/edit/${index}`}>{task.title}</Link></td>
+...
+```
+Now see if the new route is working with hot-reload.
+<br />
+[< Prev](./todo-list.html) | [Home](./) | [Next >](./todo-add-edit.html)
+</xmp>
+
+<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[< Prev](./testing.html) | [Home](./) | [Next >](./todo-list.html)
+#Adding a new route
+
+###The component for the route 
+``` javascript
+/** [project]\src\client\app\todo\components\todo-page.js **/
+import React from 'react';
+
+class TodoPage extends React.Component {
+  render() {
+    return (
+      <div className="todo-page container">
+        <h1>todo page</h1>
+      </div>
+    );
+  }
+}
+
+export default TodoPage;
+```
+
+###Adding the route
+``` javascript
+/** [project]\src\client\app\routes.js **/
+...
+import TodoPage from './todo/components/todo-page';
+...
+
+...
+  <Route path="/" component={App}>
+    <IndexRoute component={HomePage} />
+    <Route path="todo" component={TodoPage} />
+  </Route>
+...
+```
+
+###Let webpack handle multiple routes
+``` javascript
+...
+  devServer: {
+    historyApiFallback: true
+  },
+...
+```
+
+Now see if the new route is working with hot-reload.
+<br />
+[< Prev](./testing.html) | [Home](./) | [Next >](./todo-list.html)
+</xmp>
+
+<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>
+</html>
