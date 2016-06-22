@@ -6,24 +6,60 @@
 [< Prev](./testing.html) | [Home](./) | [Next >](./todo-list.html)
 #Adding a new route
 
-###The component for the route 
+###The components for the route 
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-page.js **/
-import React from 'react';
+import React, {PropTypes} from 'react';
 
 class TodoPage extends React.Component {
   render() {
     return (
-      <div className="todo-page container">
-        <h1>todo page</h1>
+      <div className="todo container">
+        {this.props.children}
       </div>
     );
   }
 }
 
+TodoPage.propTypes = {children: PropTypes.object};
+
 export default TodoPage;
 ```
 
+``` javascript
+/** [project]\src\client\app\todo\components\todo-list-page.js **/
+import React from 'react';
+
+class TodoListPage extends React.Component {
+  render() {
+    return (
+      <div className="todo-list-page">
+        Todo list goes here.
+      </div>
+    );
+  }
+}
+
+export default TodoListPage;
+```
+add a testcase
+``` javascript
+/* [project]\src\client\app\todo\components\todo-list-page.spec.js */
+/* eslint-disable */
+import TodoListPage from'./todo-list-page'
+import {renderComponent} from '../../test-helper';
+
+describe('Todo List Page', function () {
+  let component;
+  beforeEach(function () {
+    component = renderComponent(TodoListPage);
+  });
+  
+  it('has appropriate class', function () {
+    expect(component).to.have.class('todo-list-page');
+  })
+});
+```
 ###Adding the route
 ``` javascript
 /** [project]\src\client\app\routes.js **/
@@ -32,10 +68,9 @@ import TodoPage from './todo/components/todo-page';
 ...
 
 ...
-  <Route path="/" component={App}>
-    <IndexRoute component={HomePage} />
-    <Route path="todo" component={TodoPage} />
-  </Route>
+    <Route path="todo" component={TodoPage}>
+      <IndexRoute component={TodoListPage} />
+    </Route>
 ...
 ```
 
@@ -47,6 +82,13 @@ import TodoPage from './todo/components/todo-page';
   },
 ...
 ```
+``` html
+<!-- [project]\src\client\public\index.html -->
+...
+    <script src="http://localhost:9000/assets/bundle.min.js" type="text/javascript"></script>
+...
+```
+[the right way of configuring this.](https://github.com/webpack/webpack-dev-server/issues/48#issuecomment-54102027)
 
 Now see if the new route is working with hot-reload.
 <br />

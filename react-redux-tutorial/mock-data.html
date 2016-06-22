@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[< Prev](./todo-form.html) | [Home](./) | [Next >](./mock-data.html)
+#Mock data
+###create some mock data
+``` javascript
+/* eslint-disable */
+let todos = [
+  {
+    title: 'task1',
+    description: 'important task',
+    completed: false,
+    date: new Date()
+  }
+];
+
+Object.assign = function (params, obj) {
+  return obj;
+}
+
+const TodoApi = {
+  getTodos: function () {
+    return todos.slice(0);
+  },
+
+  getTodo: function (index) {
+    return Object.assign({}, todos[index]);
+  },
+
+  addTodo: function (todo) {
+    const newTodo = Object.assign({}, todo);
+    todos.push(newTodo);
+    return todo;
+  },
+
+  updateTodo: function (todo, index) {
+    todos[index] = Object.assign({}, todo);
+    return Object.assign({}, todo);;
+  },
+
+  deleteTodo: function (index) {
+    const todo = todos.splice(index, 1);
+    return todo;
+  }
+};
+
+export default TodoApi;
+```
+
+
+###todo page to get data from mock api
+``` javascript
+/* [project]\src\client\app\todo\components\todo-list-page.js */
+...
+    this.state = {tasks: TodoApi.getTodos()};
+...
+
+...
+  onTaskComplete(taskChecked, index) {
+    const tasks = this.state.tasks;
+
+    tasks[index].completed = taskChecked;
+    TodoApi.updateTodo(tasks[index]);
+    this.setState({ tasks });
+  }
+...
+```
+
+###add edit route
+``` javascript
+/** [project]\src\client\app\routes.js **/
+...
+    <Route path="todo" component={TodoPage}>
+      <IndexRoute component={TodoListPage} />
+      <Route path="new" component={TodoFormPage}/>
+      <Route path="edit/:id" component={TodoFormPage}/>
+    </Route>
+...
+```
+
+###todo form page
+``` javascript
+/* [project]\src\client\app\todo\components\todo-form-page.js */
+...
+    if (props.params && props.params.id) {
+      todo = TodoApi.getTodo(props.params.id);
+    }
+...
+
+...
+  onFormSubmit(event) {
+  ...
+
+      if (this.props.params && this.props.params.id) {
+        TodoApi.updateTodo(todo, this.props.params.id);
+      } else {
+        TodoApi.addTodo(todo);
+      }
+
+      this.context.router.push('/todo');
+    }
+  }
+...
+```
+
+**You can now edit todos.**
+<br />
+[< Prev](./todo-form.html) | [Home](./) | [Next >](./mock-data.html)
+</xmp>
+
+<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>
+</html>

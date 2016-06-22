@@ -9,42 +9,156 @@
 ###What's the ui
 [The Basic Bootstrap Table](http://getbootstrap.com/css/#tables)
 
-###A todo list component
+###Writing tests for the todo-list
+#####How to start
 ``` javascript
-/** [project]\src\client\app\todo\components\task-list.js **/
+/** [project]\src\client\app\todo\components\task-list.spec.js **/
+/* eslint-disable */
+import TodoList from'./todo-list'
+import {renderComponent} from '../../test-helper';
+
+describe('TodoList', function () {
+  
+});
+```
+#####Component has no data.
+Show a 'no data' message.
+``` javascript
+/** [project]\src\client\app\todo\components\task-list.spec.js **/
+...
+  describe('Without Data', function () {
+    let component;
+    beforeEach(function () {
+      component = renderComponent(TodoList, { todos: [], onComplete: function (index, event) {} });
+    });
+
+    it('has appropriate class', function () {
+      expect(component).to.have.class('todo-list');
+    });
+
+    it('shows "no data" message and has no table', function () {
+      expect(component.find('div.alert')).to.exist;
+      expect(component.find('table')).to.not.exist;
+    });
+  });
+...
+```
+#####Component has data.
+``` javascript
+/** [project]\src\client\app\todo\components\task-list.spec.js **/
+...
+  describe('With Data', function () {
+    let component;
+    let onCompleteCallLog = [];
+    let state = {
+      todos: [
+        {
+          title: 'task1',
+          description: 'important task',
+          completed: false,
+          date: (new Date()).toISOString().substring(0, 10)
+        },
+        {
+          title: 'task2',
+          description: 'another important task',
+          completed: false,
+          date: (new Date()).toISOString().substring(0, 10)
+        }
+      ],
+      onComplete: function (isComplete, index) {
+        onCompleteCallLog.push({isComplete, index});
+      }
+    };
+
+    beforeEach(function () {
+      onCompleteCallLog = [];
+      component = renderComponent(TodoList, state);
+    });
+
+    it('has appropriate class', function () {
+      expect(component).to.have.class('todo-list');
+    });
+  });
+...
+```
+Has a table
+``` javascript
+/** [project]\src\client\app\todo\components\task-list.spec.js **/
+...
+    it('has a table in the root element', function () {
+      expect(component.find('> table')).to.exist;
+    });
+...
+```
+
+Has a row for each todo and it contains a checkbox.
+``` javascript
+/** [project]\src\client\app\todo\components\task-list.spec.js **/
+...
+    it('has "tr" for each todo which contains a checkbox for todo completion.', function () {
+      var tableRows = component.find('> table > tbody > tr');
+      expect(tableRows.length).to.equal(state.todos.length);
+      expect(tableRows.find('input[type="checkbox"]').length).to.equal(state.todos.length);
+    });
+...
+```
+
+todo state is completed when checkbox is checked.
+``` javascript
+/** [project]\src\client\app\todo\components\task-list.spec.js **/
+...
+    it('completes todo when checkbox is clicked.', function () {
+      component.find('tbody > tr').find('input[type="checkbox"]').eq(0).simulate('change', {"target": {"checked": true}});
+
+      expect(onCompleteCallLog.length).to.equal(1);
+      expect(onCompleteCallLog[0].index).to.equal(0);
+      expect(onCompleteCallLog[0].isComplete).to.equal(true);
+
+
+      component.find('tbody > tr').find('input[type="checkbox"]').eq(1).simulate('change', {"target": {"checked": true}});
+
+      expect(onCompleteCallLog.length).to.equal(2);
+      expect(onCompleteCallLog[1].index).to.equal(1);
+      expect(onCompleteCallLog[1].isComplete).to.equal(true);
+    });
+...
+```
+
+###todo list component
+``` javascript
+/** [project]\src\client\app\todo\components\todo-list.js **/
 import React, {PropTypes} from 'react';
 
-class TaskList extends React.Component {
+class TodoList extends React.Component {
   constructor() {
     super();
-
-    this.renderTask = this.renderTask.bind(this);
+    this.renderTodo = this.renderTodo.bind(this);
   }
 
-  onTaskToggle(index, event) {
+  onTodoToggle(index, event) {
     this.props.onComplete(event.target.checked, index);
   }
 
-  renderTask(task, index) {
+  renderTodo(todo, index) {
     return (
       <tr key={index}>
-        <td>{task.title}</td>
-        <td>{task.description}</td>
-        <td>{`${task.date.toLocaleTimeString()} ${task.date.toLocaleDateString()}`}</td>
-        <td><input type="checkbox" checked={task.completed} onChange={this.onTaskToggle.bind(this, index)} /></td>
+        <td>{todo.title}</td>
+        <td>{todo.description}</td>
+        <td>{todo.date.toLocaleString()}</td>
+        <td><input type="checkbox" checked={todo.completed} onChange={this.onTodoToggle.bind(this, index)} /></td>
       </tr>
     );
   }
 
   render() {
     const emptyTastListLength = 0;
-    let taskListOrMessage = false;
+    let todoListOrMessage = false;
 
-    if (this.props.tasks.length === emptyTastListLength) {
-      taskListOrMessage = <div className="alert alert-warning">No tasks.</div>
+    if (this.props.todos.length === emptyTastListLength) {
+      todoListOrMessage = <div className="alert alert-warning">No todos.</div>
     } else {
-      taskListOrMessage =
-        <table className="table table-sm">
+      todoListOrMessage =
+        <table className="table">
           <thead>
             <tr>
               <td>Title</td>
@@ -54,133 +168,63 @@ class TaskList extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {this.props.tasks.map(this.renderTask) }
+            {this.props.todos.map(this.renderTodo) }
           </tbody>
         </table>
     }
 
     return (
-      <div className="task-list">
-        <h1>Tasks</h1>
-        {taskListOrMessage}
+      <div className="todo-list">
+        <h1>Todos</h1>
+        {todoListOrMessage}
       </div>
     );
   }
 }
 
-TaskList.propTypes = {
-  tasks: PropTypes.arrayOf(PropTypes.object).isRequired,
+TodoList.propTypes = {
+  todos: PropTypes.arrayOf(PropTypes.object).isRequired,
   onComplete: PropTypes.func.isRequired
 }
 
-export default TaskList;
+export default TodoList;
 ```
 
-###Adding the list to the todo page.
+###Adding the list to the todo list page.
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-page.js **/
+import {Link} from 'react-router';
 import React from 'react';
-import TaskList from './task-list';
+import TodoList from './todo-list';
 
-class TodoPage extends React.Component {
+class TodoListPage extends React.Component {
   constructor() {
     super();
-    this.state = {
-      tasks: [
-        {
-          title: 'task1',
-          description: 'important task',
-          completed: false,
-          date: new Date()
-        }
-      ]
-    };
+    this.state = [];
 
-    this.onTaskComplete = this.onTaskComplete.bind(this);
+    this.onTodoComplete = this.onTodoComplete.bind(this);
   }
 
-  onTaskComplete(taskChecked, index) {
-    const tasks = this.state.tasks;
+  onTodoComplete(todoChecked, index) {
+    const todos = this.state.todos;
 
-    tasks[index].completed = taskChecked;
-    this.setState({ tasks });
+    todos[index].completed = todoChecked;
+    this.setState({ todos });
   }
 
   render() {
     return (
-      <div className="todo-page container">
-        <TaskList tasks={this.state.tasks} onComplete={this.onTaskComplete} />
+      <div className="todo-list-page">
+        <TodoList todos={this.state.todos} onComplete={this.onTodoComplete} />
       </div>
     );
   }
 }
 
-export default TodoPage;
+export default TodoListPage;
 ```
 
-###Writing tests for the todo-list
-``` javascript
-/** [project]\src\client\app\todo\components\task-list.spec.js **/
-/* eslint-disable */
-import TaskList from'./task-list'
-import {renderComponent} from '../../test-helper';
-
-describe('TaskList', function () {
-  describe('Without Data', function () {
-    let component;
-    beforeEach(function () {
-      component = renderComponent(TaskList, { tasks: [], onComplete: function (index, event) {} });
-    });
-
-    it('has appropriate class', function () {
-      expect(component).to.have.class('task-list');
-    });
-
-    it('shows "no data" message and has no table', function () {
-      expect(component.find('div.alert')).to.exist;
-      expect(component.find('table')).to.not.exist;
-    });
-  });
-
-  describe('With Data', function () {
-    let component;
-    let state = {
-      tasks: [
-        {
-          title: 'task1',
-          description: 'important task',
-          completed: false,
-          date: new Date()
-        }
-      ],
-      onComplete: function (isComplete, index) {
-        state.tasks[index].completed = isComplete;
-      }
-    };
-
-    beforeEach(function () {
-      component = renderComponent(TaskList, state);
-    });
-
-    it('has appropriate class', function () {
-      expect(component).to.have.class('task-list');
-    });
-
-    it('has "tr" for each task which contains a checkbox for task completion.', function () {
-      expect(component.find('tbody > tr').length).to.equal(state.tasks.length);
-      expect(component.find('tbody > tr').find('input[type="checkbox"]').length).to.equal(state.tasks.length);
-    });
-
-    it('completes task when checkbox is clicked.', function () {
-      component.find('tbody > tr').find('input[type="checkbox"]').simulate('change', {"target": {"checked": true}});
-
-      console.log(state.tasks[0].completed);
-    });
-  });
-});
-```
-
-Now see if the new route is working with hot-reload.
+Check the browser and correct any styling that you dont like.
 <br />
 [< Prev](./new-route.html) | [Home](./) | [Next >](./todo-form.html)
 </xmp>

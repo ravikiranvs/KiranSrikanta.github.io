@@ -3,55 +3,180 @@
 <title>react-redux</title>
 
 <xmp theme="united" style="display:none;">
-[< Prev](./todo-list.html) | [Home](./) | [Next >](./todo-add-edit.html)
+[< Prev](./todo-list.html) | [Home](./) | [Next >](./mock-data.html)
 #Todo Form
 
-###route with params
+###new form route
 ``` javascript
 /** [project]\src\client\app\routes.js **/
 ...
-import TodoEditPage from './todo/components/todo-edit-page';
+import TodoFormPage from './todo/components/todo-form-page';
 ...
 
 ...
-    <Route path="todo/edit" component={TodoEditPage} />
-    <Route path="todo/edit/:id" component={TodoEditPage} />
+    <Route path="todo" component={TodoPage}>
+      <IndexRoute component={TodoListPage} />
+      <Route path="new" component={TodoFormPage}/>
+    </Route>
+...
+```
+#####Initial component render 
+``` javascript
+/** [project]\src\client\app\todo\components\todo-form-page.js **/
+import React from 'react';
+
+class TodoFormPage extends React.Component {
+  render() {
+    return (
+      <div className="todo-edit-page container">
+        <h1>Todo Form</h1>
+      </div>
+    )
+  }
+}
+
+export default TodoFormPage;
+```
+#####add todo link
+``` javascript
+/** [project]\src\client\app\todo\components\todo-list-page.js **/
+...
+        <Link to='/todo/edit'>Add Task</Link>
 ...
 ```
 
-###The todo edit component.
+#####edit todo link
+``` javascript
+/** [project]\src\client\app\todo\components\todo-list.js **/
+...
+        <td><Link to={`todo/edit/${index}`}>{task.title}</Link></td>
+...
+```
+Check if routing is working
+
+###The todo edit component UI
 [Bootstrap form](http://getbootstrap.com/css/#forms-example)
 
 [Bootstrap form validation](http://getbootstrap.com/css/#forms-control-validation)
+
+###tests
 ``` javascript
-/** [project]\src\client\app\todo\components\todo-edit-page.js **/
+/** [project]\src\client\app\todo\components\todo-form-page.spec.js **/
+/* eslint-disable */
+import TodoFormPage from'./todo-form-page'
+import {renderComponent} from '../../test-helper';
+
+describe('Todo Edit Page', function () {
+  let component;
+  beforeEach(function () {
+    component = renderComponent(TodoFormPage);
+  });
+
+  it('has appropriate class', function () {
+    expect(component).to.have.class('todo-edit-page');
+  });
+
+  it('has a form', function () {
+    expect(component.find('form')).to.exist;
+  });
+
+  it('has a textbox form field for title', function () {
+    expect(component.find('form input[type="text"][id="title"]')).to.exist;
+  });
+
+  it('has a textarea form field for description', function () {
+    expect(component.find('form textarea[id="description"]')).to.exist;
+  });
+
+  it('has a datepicker form field for date', function () {
+    expect(component.find('form input[type="date"][id="date"]')).to.exist;
+  });
+
+  it('has a submit button', function () {
+    expect(component.find('form button')).to.exist;
+  });
+
+  it('shows error when empty title is submitted', function () {
+    expect(component.find('form input[type="text"][id="title"]').parent()).to.not.have.class('has-error');
+    component.find('form').simulate('submit');
+    expect(component.find('form input[type="text"][id="title"]').parent()).to.have.class('has-error');
+  });
+});
+```
+
+###todo form component
+``` javascript
+/** [project]\src\client\app\todo\components\todo-form-page.js **/
 import React, {PropTypes} from 'react';
 
-class TodoEditPage extends React.Component {
-  constructor() {
-    super();
-    const todo = {
-        title: '',
-        description: '',
-        date: '',
-        completed: false
+class TodoFormPage extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+    this.onFormSubmit = this.onFormSubmit.bind(this);
+
+    let todo = {
+      title: '',
+      description: '',
+      date: new Date(),
+      completed: false
     };
+
+    todo.date = this.toJSONWithoutTZ(todo.date);
 
     this.state = {
       todo,
       errors: { titleRequired: false }
     };
 
-    this.onFormSubmit = this.onFormSubmit.bind(this);
+    this.onTodoChange = this.onTodoChange.bind(this);
+    this.onCancel = this.onCancel.bind(this);
+  }
+
+  /* eslint-disable no-magic-numbers */
+  toJSONWithoutTZ(datetime) {
+    datetime.setMinutes(datetime.getMinutes() - new Date().getTimezoneOffset());
+    datetime.setSeconds(0);
+
+    return datetime.toJSON().slice(0, 19);
+  }
+
+  toDateTime(datetimeString) {
+    const date = new Date(datetimeString);
+
+    date.setMinutes(date.getMinutes() + new Date().getTimezoneOffset());
+
+    return date;
+  }
+
+  /* eslint-enable no-magic-numbers */
+
+  onTodoChange(event) {
+    event.preventDefault();
+    const todo = this.state.todo;
+
+    todo[event.target.id] = event.target.value;
+    this.setState({todo});
   }
 
   onFormSubmit(event) {
     event.preventDefault();
     if (this.state.todo.title === '') {
-      this.setState({errors: {titleRequired: true}});
+      this.setState({ errors: { titleRequired: true } });
     } else {
-      this.setState({errors: {titleRequired: false}});
+      this.setState({ errors: { titleRequired: false } });
+      const todo = this.state.todo;
+
+      todo.date = this.toDateTime(todo.date);
+
+      // TODO:Save to server code
+
+      this.context.router.push('/todo');
     }
+  }
+
+  onCancel(event) {
+    event.preventDefault();
+    this.context.router.push('/todo');
   }
 
   render() {
@@ -60,53 +185,43 @@ class TodoEditPage extends React.Component {
 
     return (
       <div className="todo-edit-page container">
-        <h1>Add Task</h1>
+        <h1>Todo Form</h1>
         <form role="form" onSubmit={this.onFormSubmit}>
           <div className={titleGroupClass}>
             <label data-for="title">Title</label>
-            <input type="text" className="form-control" id="title" value={this.state.todo.title} />
+            <input type="text" className="form-control" id="title" value={this.state.todo.title} onChange={this.onTodoChange} />
           </div>
 
           <div className="form-group">
             <label data-for="description">Description</label>
-            <textarea className="form-control" id="description" value={this.state.todo.description} />
+            <textarea className="form-control" id="description" value={this.state.todo.description} onChange={this.onTodoChange} />
           </div>
 
           <div className="form-group">
             <label data-for="date">Date</label>
-            <input type="date" className="form-control" id="date" value={this.state.todo.date} />
+            <input type="datetime-local" className="form-control" id="date" value={this.state.todo.date} onChange={this.onTodoChange} />
           </div>
 
-          <button type="submit" className="btn btn-default">Submit</button>
+          <button type="submit" className="btn btn-primary">Submit</button>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <button type="button" className="btn btn-default" onClick={this.onCancel}>Cancel</button>
         </form>
       </div>
     )
   }
 }
 
-TodoEditPage.propTypes = { todo: PropTypes.object };
+TodoFormPage.propTypes = {
+  todo: PropTypes.object,
+  params: PropTypes.object
+};
 
-export default TodoEditPage;
-```
+TodoFormPage.contextTypes = {router: PropTypes.object};
 
-###add todo link
-``` javascript
-/** [project]\src\client\app\todo\components\todo-page.js **/
-...
-        <Link to='/todo/edit'>Add Task</Link>
-...
+export default TodoFormPage;
 ```
-
-###edit todo link
-``` javascript
-/** [project]\src\client\app\todo\components\todo-list.js **/
-...
-        <td><Link to={`todo/edit/${index}`}>{task.title}</Link></td>
-...
-```
-Now see if the new route is working with hot-reload.
 <br />
-[< Prev](./todo-list.html) | [Home](./) | [Next >](./todo-add-edit.html)
+[< Prev](./todo-list.html) | [Home](./) | [Next >](./mock-data.html)
 </xmp>
 
 <script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>
