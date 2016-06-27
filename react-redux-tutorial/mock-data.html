@@ -91,16 +91,11 @@ export default TodoApi;
 ...
 
 ...
-  onFormSubmit(event) {
-  ...
-
-      if (this.props.params && this.props.params.id) {
-        TodoApi.updateTodo(todo, this.props.params.id);
-      } else {
-        TodoApi.addTodo(todo);
-      }
-
-      this.context.router.push('/todo');
+  saveTodo(todo) {
+    if (this.props.params && this.props.params.id) {
+      TodoApi.updateTodo(todo, this.props.params.id);
+    } else {
+      TodoApi.addTodo(todo);
     }
   }
 ...

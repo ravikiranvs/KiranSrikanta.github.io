@@ -28,7 +28,7 @@ Assert Liberary | ✗         | ✗      | ✓   | ✓
 
 ###Installation
 ```
-[project]> npm i -D react-addons-test-utils karma karma-chrome-launcher karma-ie-launcher karma-cli karma-sourcemap-loader karma-webpack mocha karma-mocha karma-mocha-reporter karma-chai-plugins chai-jquery jquery fs
+[project]> npm i -D react-addons-test-utils karma@0.13.22 karma-chrome-launcher karma-ie-launcher karma-cli karma-sourcemap-loader karma-webpack mocha karma-mocha karma-mocha-reporter karma-chai-plugins chai-jquery jquery fs
 ```
 
 ###Configuration
@@ -126,14 +126,9 @@ const renderComponent = function renderComponent (Component,
     return jQuery(ReactDOM.findDOMNode(componentInstance));
 };
 
-jQuery.fn.simulate = function simulate (eventName, value) {
-    if (value) {
-        this.val(value);
-    }
-
+jQuery.fn.simulate = function simulate (eventName, eventData) {
     const firstElementIndex = 0;
-
-    TestUtils.Simulate[eventName](this[firstElementIndex]);
+    TestUtils.Simulate[eventName](this[firstElementIndex], eventData);
 };
 
 chaiJQuery(chai, chai.util, jQuery);

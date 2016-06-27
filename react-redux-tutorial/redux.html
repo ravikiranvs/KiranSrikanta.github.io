@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[< Prev](./mock-data.html) | [Home](./) | [Next >](./redux.html)
+#redux
+<img src="./assets/redux-data-flow.jpg" alt="redux data flow"></img>
+
+#what code do we implement.
+###Action Creators and Action Types
+``` javascript
+/* action-types.js */
+export const CREATE_ITEM = 'CREATE_ITEM',
+             LOAD_ITEMS = 'LOAD_ITEMS',
+             DELETE_ITEM = 'UPDATE_ITEM';
+```
+
+``` javascript
+/* actions.js */
+import * as actionTypes from './action-types';
+
+const itemActions = {
+  'loadItems': function loadItems(items) {
+    return {
+      'type': actionTypes.LOAD_ITEMS,
+      items
+    };
+  },
+  'createItem': function createItem(item) {
+    return {
+      'type': actionTypes.CREATE_ITEM,
+      item
+    };
+  },
+  'deleteItem': function deleteItem(itemId) {
+    return {
+      'type': actionTypes.CREATE_ITEM,
+      itemId
+    };
+  }
+};
+
+export default itemActions;
+```
+
+###Reducers
+`(previousState, action) => newState`
+``` javascript
+/* reducer.js */
+import * as actionTypes from '../actions/action-types';
+
+/**
+ * Redux reducer for items.
+ * @param {state} state of the app with empty default.
+ * @param {action} action Any item action.
+ * @returns {state} New state from action.
+ */
+export default function itemReducer(
+  state = [],
+  action
+) {
+  switch (action.type) {
+    case actionTypes.LOAD_ITEMS:
+      return action.items;
+    case actionTypes.CREATE_ITEM:
+      return [...state, Object.assign({}, action.item)];
+    case actionTypes.DELETE_ITEM:
+      return [...state.filter((item) => item.id !== action.itemId)];
+    default:
+      return state;
+  }
+}
+```
+
+#####Combining all reducers
+``` javascript
+/* root-reducer.js */
+import {combineReducers} from 'redux';
+import itemReducer from '../item/reducers/item-reducer';
+import anotherReducer from '../another/reducers/another-reducer';
+import yetAnotherReducer from '../yetAnother/reducers/yetAnother-reducer';
+
+export const rootReducer = combineReducers({
+    itemReducer,
+    anotherReducer,
+    yetAnotherReducer
+});
+
+export default rootReducer;
+```
+
+###The Store
+``` javascript
+import {createStore} from 'redux';
+import {rootReducer} from '../reducers/index';
+
+/**
+ * Creates the redux store.
+ * @param {initialState} initialState the initial state for the redux store.
+ * @returns {store} The redux store.
+ */
+export default function configureStore (initialState) {
+    const store = createStore(
+        rootReducer,
+        initialState
+        // ,middleware (optional)
+    );
+
+    return store;
+}
+```
+
+#####Initializing the store
+``` javascript
+/* main.js */
+import {Provider} from 'react-redux';
+import configureStore from './store/configure-store';
+import courseActions from './item/actions/item-actions';
+
+const store = configureStore();
+store.dispatch(itemActions.loadItems([]));
+
+render(
+  <Provider store={store}>
+    <Router history={browserHistory} routes={routes} />
+  </Provider>,
+  document.getElementById('app')
+);
+```
+
+###components
+#####getting data from store
+``` javascript
+/** [project]\src\client\app\main.js **/
+import React from 'react';
+import {render} from 'react-dom';
+
+import itemActions from '../actions/item-actions';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+
+class Item extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      item: { 'title': '' }
+    };
+
+    this.onTitleChange = this.onTitleChange.bind(this);
+    this.onSaveClick = this.onSaveClick.bind(this);
+  }
+
+  onTitleChange(event) {
+    const item = this.state.item;
+
+    item.title = event.target.value;
+    this.setState({ item });
+  }
+
+  onSaveClick(event) {
+    const item = this.state.item;
+
+    event.preventDefault();
+    this.props.actions.createItem(item);// ACTION CREATOR IS CALLED HERE!!!
+    item.title = '';
+    this.setState({ item });
+  }
+
+  render () {
+    return (
+        <div>
+          <h1>{this.props.lastItem.title}</h1>
+          <input type="text" value={this.state.item.title} onChange={this.onTitleChange} />
+          <input type="submit" value="Save" onClick={this.onSaveClick} />
+        </div>
+    );
+  }
+}
+
+CoursesPage.propTypes = {
+  'lastItem': PropTypes.object.isRequired,
+  'actions': PropTypes.object.isRequired
+};
+
+const mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return {
+    'actions': bindActionCreators(courseActions, dispatch)
+  };
+};
+
+const mapStateToProps = function mapStateToProps(state) {
+  return {
+    'lastItem': state.itemReducer[state.itemReducer.length -1]
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Item);
+```
+<br />
+[< Prev](./mock-data.html) | [Home](./) | [Next >](./redux.html)
+</xmp>
+
+<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>
+</html>

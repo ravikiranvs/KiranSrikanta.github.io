@@ -20,23 +20,62 @@ import TodoFormPage from './todo/components/todo-form-page';
     </Route>
 ...
 ```
-#####Initial component render 
+#####The todo form container page
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-form-page.js **/
-import React from 'react';
+import React, {PropTypes} from 'react';
+import TodoForm from './todo-form';
 
 class TodoFormPage extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+
+    let todo = null;
+
+    this.state = {todo};
+    this.saveTodo = this.saveTodo.bind(this);
+  }
+
+  saveTodo(todo) {
+    // TODO: Code to save todo.
+  }
+
   render() {
     return (
-      <div className="todo-edit-page container">
+      <div className="todo-form-page container">
+        <TodoForm todo={this.state.todo} onSave={this.saveTodo} />
+      </div>
+    )
+  }
+}
+
+TodoFormPage.propTypes = {params: PropTypes.object};
+
+export default TodoFormPage;
+```
+#####The todo form initial component render 
+``` javascript
+/** [project]\src\client\app\todo\components\todo-form.js **/
+import React, {PropTypes} from 'react';
+
+class TodoForm extends React.Component {
+  render() {
+    return (
+      <div className="todo-form">
         <h1>Todo Form</h1>
       </div>
     )
   }
 }
 
-export default TodoFormPage;
+TodoForm.propTypes = {
+  todo: PropTypes.object.isRequired,
+  onSave: PropTypes.func.isRequired
+};
+
+export default TodoForm;
 ```
+
 #####add todo link
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-list-page.js **/
@@ -107,28 +146,23 @@ describe('Todo Edit Page', function () {
 ###todo form component
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-form-page.js **/
+// import 'babel-polyfill';
 import React, {PropTypes} from 'react';
 
-class TodoFormPage extends React.Component {
+class TodoForm extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.onFormSubmit = this.onFormSubmit.bind(this);
+    const todoInitialState = Object.assign({}, props.todo);
 
-    let todo = {
-      title: '',
-      description: '',
-      date: new Date(),
-      completed: false
-    };
-
-    todo.date = this.toJSONWithoutTZ(todo.date);
+    todoInitialState.date = this.toJSONWithoutTZ(todoInitialState.date);
 
     this.state = {
-      todo,
+      todo: todoInitialState,
       errors: { titleRequired: false }
     };
 
     this.onTodoChange = this.onTodoChange.bind(this);
+    this.onFormSubmit = this.onFormSubmit.bind(this);
     this.onCancel = this.onCancel.bind(this);
   }
 
@@ -168,7 +202,7 @@ class TodoFormPage extends React.Component {
 
       todo.date = this.toDateTime(todo.date);
 
-      // TODO:Save to server code
+      this.props.onSave(todo);
 
       this.context.router.push('/todo');
     }
@@ -184,7 +218,7 @@ class TodoFormPage extends React.Component {
     let titleGroupClass = this.state.errors.titleRequired ? 'form-group has-error' : 'form-group';
 
     return (
-      <div className="todo-edit-page container">
+      <div className="todo-form">
         <h1>Todo Form</h1>
         <form role="form" onSubmit={this.onFormSubmit}>
           <div className={titleGroupClass}>
@@ -211,14 +245,14 @@ class TodoFormPage extends React.Component {
   }
 }
 
-TodoFormPage.propTypes = {
-  todo: PropTypes.object,
-  params: PropTypes.object
+TodoForm.propTypes = {
+  todo: PropTypes.object.isRequired,
+  onSave: PropTypes.func.isRequired
 };
 
-TodoFormPage.contextTypes = {router: PropTypes.object};
+TodoForm.contextTypes = {router: PropTypes.object};
 
-export default TodoFormPage;
+export default TodoForm;
 ```
 <br />
 [< Prev](./todo-list.html) | [Home](./) | [Next >](./mock-data.html)
