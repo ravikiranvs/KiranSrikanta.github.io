@@ -30,9 +30,10 @@ class TodoFormPage extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    let todo = null;
+    const todo = null;
+    // TODO: Code to get todo.
 
-    this.state = {todo};
+    this.state = { todo };
     this.saveTodo = this.saveTodo.bind(this);
   }
 
@@ -45,11 +46,11 @@ class TodoFormPage extends React.Component {
       <div className="todo-form-page container">
         <TodoForm todo={this.state.todo} onSave={this.saveTodo} />
       </div>
-    )
+    );
   }
 }
 
-TodoFormPage.propTypes = {params: PropTypes.object};
+TodoFormPage.propTypes = { params: PropTypes.object };
 
 export default TodoFormPage;
 ```
@@ -64,12 +65,12 @@ class TodoForm extends React.Component {
       <div className="todo-form">
         <h1>Todo Form</h1>
       </div>
-    )
+    );
   }
 }
 
 TodoForm.propTypes = {
-  todo: PropTypes.object.isRequired,
+  todo: PropTypes.object,
   onSave: PropTypes.func.isRequired
 };
 
@@ -79,16 +80,18 @@ export default TodoForm;
 #####add todo link
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-list-page.js **/
+import {Link} from 'react-router';
 ...
-        <Link to='/todo/edit'>Add Task</Link>
+        <Link to='/todo/new'>Add Task</Link>
 ...
 ```
 
 #####edit todo link
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-list.js **/
+import {Link} from 'react-router';
 ...
-        <td><Link to={`todo/edit/${index}`}>{task.title}</Link></td>
+        <td><Link to={`todo/edit/${index}`}>{todo.title}</Link></td>
 ...
 ```
 Check if routing is working
@@ -100,19 +103,19 @@ Check if routing is working
 
 ###tests
 ``` javascript
-/** [project]\src\client\app\todo\components\todo-form-page.spec.js **/
+/** [project]\src\client\app\todo\components\todo-form.spec.js **/
 /* eslint-disable */
 import TodoFormPage from'./todo-form-page'
 import {renderComponent} from '../../test-helper';
 
-describe('Todo Edit Page', function () {
+describe('Todo Form Page', function () {
   let component;
   beforeEach(function () {
     component = renderComponent(TodoFormPage);
   });
 
   it('has appropriate class', function () {
-    expect(component).to.have.class('todo-edit-page');
+    expect(component).to.have.class('todo-form-page');
   });
 
   it('has a form', function () {
@@ -128,7 +131,7 @@ describe('Todo Edit Page', function () {
   });
 
   it('has a datepicker form field for date', function () {
-    expect(component.find('form input[type="date"][id="date"]')).to.exist;
+    expect(component.find('form input[type="datetime-local"][id="date"]')).to.exist;
   });
 
   it('has a submit button', function () {
@@ -152,6 +155,7 @@ import React, {PropTypes} from 'react';
 class TodoForm extends React.Component {
   constructor(props, context) {
     super(props, context);
+
     const todoInitialState = Object.assign({}, props.todo);
 
     todoInitialState.date = this.toJSONWithoutTZ(todoInitialState.date);
@@ -160,9 +164,8 @@ class TodoForm extends React.Component {
       todo: todoInitialState,
       errors: { titleRequired: false }
     };
-
-    this.onTodoChange = this.onTodoChange.bind(this);
-    this.onFormSubmit = this.onFormSubmit.bind(this);
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
     this.onCancel = this.onCancel.bind(this);
   }
 
@@ -182,28 +185,16 @@ class TodoForm extends React.Component {
     return date;
   }
 
-  /* eslint-enable no-magic-numbers */
-
-  onTodoChange(event) {
-    event.preventDefault();
-    const todo = this.state.todo;
-
-    todo[event.target.id] = event.target.value;
-    this.setState({todo});
-  }
-
-  onFormSubmit(event) {
+  onSubmit(event) {
     event.preventDefault();
     if (this.state.todo.title === '') {
       this.setState({ errors: { titleRequired: true } });
     } else {
       this.setState({ errors: { titleRequired: false } });
-      const todo = this.state.todo;
+      const todo = Object.assign({}, this.state.todo);
 
       todo.date = this.toDateTime(todo.date);
-
       this.props.onSave(todo);
-
       this.context.router.push('/todo');
     }
   }
@@ -213,35 +204,40 @@ class TodoForm extends React.Component {
     this.context.router.push('/todo');
   }
 
+  onChange(event) {
+    event.preventDefault();
+    const todo = Object.assign({}, this.state.todo);
+
+    todo[event.target.id] = event.target.value;
+    this.setState({ todo });
+  }
+
   render() {
     // eslint-disable-next-line no-ternary
-    let titleGroupClass = this.state.errors.titleRequired ? 'form-group has-error' : 'form-group';
+    let titleFieldClass = this.state.errors.titleRequired ? 'form-group has-error' : 'form-group';
 
     return (
       <div className="todo-form">
         <h1>Todo Form</h1>
-        <form role="form" onSubmit={this.onFormSubmit}>
-          <div className={titleGroupClass}>
-            <label data-for="title">Title</label>
-            <input type="text" className="form-control" id="title" value={this.state.todo.title} onChange={this.onTodoChange} />
+        <form role="form" onSubmit={this.onSubmit}>
+          <div className={titleFieldClass}>
+            <label htmlFor="title">Title</label>
+            <input type="text" className="form-control" id="title" placeholder="Title for the todo." value={this.state.todo.title} onChange={this.onChange} />
           </div>
-
           <div className="form-group">
-            <label data-for="description">Description</label>
-            <textarea className="form-control" id="description" value={this.state.todo.description} onChange={this.onTodoChange} />
+            <label htmlFor="description">Description</label>
+            <textarea className="form-control" id="description" placeholder="Description for the todo." value={this.state.todo.description} onChange={this.onChange} />
           </div>
-
           <div className="form-group">
-            <label data-for="date">Date</label>
-            <input type="datetime-local" className="form-control" id="date" value={this.state.todo.date} onChange={this.onTodoChange} />
+            <label htmlFor="date">Date</label>
+            <input type="datetime-local" className="form-control" id="date" value={this.state.todo.date} onChange={this.onChange} />
           </div>
-
           <button type="submit" className="btn btn-primary">Submit</button>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
           <button type="button" className="btn btn-default" onClick={this.onCancel}>Cancel</button>
         </form>
       </div>
-    )
+    );
   }
 }
 

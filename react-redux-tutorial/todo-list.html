@@ -9,6 +9,29 @@
 ###What's the ui
 [The Basic Bootstrap Table](http://getbootstrap.com/css/#tables)
 
+###a blank todo-list
+``` javascript
+/** [project]\src\client\app\todo\components\todo-list.js **/
+import React, {PropTypes} from 'react';
+
+class TodoList extends React.Component {
+  render() {
+    return (
+      <div className="todo-list">
+        Todo list goes here
+      </div>
+    );
+  }
+}
+
+TodoList.propTypes = {
+  todos: PropTypes.array.isRequired,
+  onComplete: PropTypes.func.isRequired
+};
+
+export default TodoList;
+```
+
 ###Writing tests for the todo-list
 #####How to start
 ``` javascript
@@ -50,7 +73,7 @@ Show a 'no data' message.
   describe('With Data', function () {
     let component;
     let onCompleteCallLog = [];
-    let state = {
+    let properties = {
       todos: [
         {
           title: 'task1',
@@ -72,7 +95,7 @@ Show a 'no data' message.
 
     beforeEach(function () {
       onCompleteCallLog = [];
-      component = renderComponent(TodoList, state);
+      component = renderComponent(TodoList, properties);
     });
 
     it('has appropriate class', function () {
@@ -97,8 +120,8 @@ Has a row for each todo and it contains a checkbox.
 ...
     it('has "tr" for each todo which contains a checkbox for todo completion.', function () {
       var tableRows = component.find('> table > tbody > tr');
-      expect(tableRows.length).to.equal(state.todos.length);
-      expect(tableRows.find('input[type="checkbox"]').length).to.equal(state.todos.length);
+      expect(tableRows.length).to.equal(properties.todos.length);
+      expect(tableRows.find('input[type="checkbox"]').length).to.equal(properties.todos.length);
     });
 ...
 ```
@@ -155,7 +178,7 @@ class TodoList extends React.Component {
     let todoListOrMessage = false;
 
     if (this.props.todos.length === emptyTastListLength) {
-      todoListOrMessage = <div className="alert alert-warning">No todos.</div>
+      todoListOrMessage = <div className="alert alert-warning">No todos.</div>;
     } else {
       todoListOrMessage =
         <table className="table">
@@ -170,7 +193,7 @@ class TodoList extends React.Component {
           <tbody>
             {this.props.todos.map(this.renderTodo) }
           </tbody>
-        </table>
+        </table>;
     }
 
     return (
@@ -185,22 +208,21 @@ class TodoList extends React.Component {
 TodoList.propTypes = {
   todos: PropTypes.arrayOf(PropTypes.object).isRequired,
   onComplete: PropTypes.func.isRequired
-}
+};
 
 export default TodoList;
 ```
 
 ###Adding the list to the todo list page.
 ``` javascript
-/** [project]\src\client\app\todo\components\todo-page.js **/
-import {Link} from 'react-router';
+/** [project]\src\client\app\todo\components\todo-list-page.js **/
 import React from 'react';
 import TodoList from './todo-list';
 
 class TodoListPage extends React.Component {
   constructor() {
     super();
-    this.state = [];
+    this.state = { todos: [] };
 
     this.onTodoComplete = this.onTodoComplete.bind(this);
   }

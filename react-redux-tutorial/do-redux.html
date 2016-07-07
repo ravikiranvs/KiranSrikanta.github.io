@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[< Prev](./redux.html) | [Home](./) | [Next >](./time-travel-debugging.html)
+#redux
+
+###Action Creators and Action Types
+``` javascript
+/* [project]\src\client\app\todo\actions\action-types.js */
+export const CREATE_TODO = 'CREATE_TODO',
+             UPDATE_TODO = 'UPDATE_TODO';
+```
+
+``` javascript
+/* [project]\src\client\app\todo\actions\todo-actions.js */
+import * as actionTypes from './action-types';
+
+export default {
+  'createTodo': (todo) => {
+    const action = {
+      'type': actionTypes.CREATE_TODO,
+      todo
+    };
+
+    return action;
+  },
+  'updateTodo': (index, todo) => {
+    const action = {
+      'type': actionTypes.UPDATE_TODO,
+      todo,
+      index
+    };
+
+    return action;
+  }
+};
+```
+
+###Reducers
+``` javascript
+/* [project]\src\client\app\todo\reducers\todo-reducer.js */
+import * as actionTypes from '../actions/action-types';
+
+/**
+ * Redux reducer for items.
+ * @param {state} state of the app with empty default.
+ * @param {action} action Any item action.
+ * @returns {state} New state from action.
+ */
+export default function todoReducer(
+  state = [],
+  action
+) {
+  switch (action.type) {
+    case actionTypes.CREATE_TODO:
+      return [...state, Object.assign({}, action.todo)];
+    case actionTypes.UPDATE_TODO:
+      {
+        const newState = [...state];
+
+        newState[action.index] = Object.assign({}, action.todo);
+
+        return newState;
+      }
+    default:
+      return state;
+  }
+}
+```
+
+#####Combining all reducers
+``` javascript
+/* [project]\src\client\app\root-reducer.js */
+import {combineReducers} from 'redux';
+import todoReducer from './todo/reducers/todo-reducer';
+
+export const rootReducer = combineReducers({todoReducer});
+
+export default rootReducer;
+```
+
+###The Store
+``` javascript
+/* [project]\src\client\app\store\configure-store.js */
+import {createStore} from 'redux';
+import {rootReducer} from '../root-reducer';
+
+/**
+ * Creates the redux store.
+ * @param {initialState} initialState the initial state for the redux store.
+ * @returns {store} The redux store.
+ */
+export default function configureStore (initialState) {
+    const store = createStore(
+        rootReducer,
+        initialState
+    );
+
+    return store;
+}
+```
+
+#####Initializing the store
+``` javascript
+/* [project]\src\client\app\main.js */
+import '../../../node_modules/bootstrap/dist/css/bootstrap.css';
+import '../../../node_modules/bootstrap/dist/css/bootstrap-theme.css';
+import {Provider} from 'react-redux';
+import {Router, browserHistory} from 'react-router';
+import React from 'react';
+import {render} from 'react-dom';
+import configureStore from './store/configure-store';
+import routes from './routes';
+
+const store = configureStore();
+
+render(
+  <Provider store={store}>
+    <Router history={browserHistory} routes={routes} />
+  </Provider>,
+  document.getElementById('app')
+);
+```
+
+###mock store for test helper.
+``` javascript
+/** [project]\src\client\app\test-helper.js **/
+/*eslint-disable */
+import {Provider} from 'react-redux';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import TestUtils from 'react-addons-test-utils';
+import chaiJQuery from 'chai-jquery';
+import {createStore} from 'redux';
+import jQuery from 'jquery';
+import rootReducer from './root-reducer';
+
+const renderComponent = function renderComponent (
+  Component,
+  props = {},
+  state = {}) {
+    const componentInstance = TestUtils.renderIntoDocument(
+        <Provider store={createStore(rootReducer, state)}>
+          <Component {...props} />
+        </Provider>
+    );
+
+    return jQuery(ReactDOM.findDOMNode(componentInstance));
+};
+
+jQuery.fn.simulate = function simulate (eventName, eventData) {
+    const firstElementIndex = 0;
+    TestUtils.Simulate[eventName](this[firstElementIndex], eventData);
+};
+
+chaiJQuery(chai, chai.util, jQuery);
+
+export {renderComponent};
+```
+
+###components
+#####the todo list page
+``` javascript
+/** [project]\src\client\app\todo\components\todo-list-page.js **/
+...
+import todoActions from '../actions/todo-actions';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+
+class TodoListPage extends React.Component {
+  constructor() {
+    super();
+
+    this.onTodoComplete = this.onTodoComplete.bind(this);
+  }
+
+  onTodoComplete(todoChecked, index) {
+    const todo = Object.assign({}, this.props.todos[index]);
+
+    todo.completed = todoChecked;
+    this.props.actions.updateTodo(index, todo);
+  }
+
+  render() {
+    return (
+      <div className="todo-list-page">
+        <TodoList todos={this.props.todos} onComplete={this.onTodoComplete} />
+        <Link to="/todo/new">Add Todo</Link>
+      </div>
+    );
+  }
+}
+
+TodoListPage.propTypes = {
+  actions: PropTypes.object,
+  todos: PropTypes.array
+};
+
+const mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return {actions: bindActionCreators(todoActions, dispatch)};
+},
+mapStateToProps = function mapStateToProps(state) {
+  return {todos: state.todoReducer};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TodoListPage);
+...
+```
+
+#####the todo form page
+``` javascript
+/** [project]\src\client\app\todo\components\todo-form-page.js **/
+import React, {PropTypes} from 'react';
+import TodoForm from './todo-form';
+import todoActions from '../actions/todo-actions';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+
+class TodoFormPage extends React.Component {
+  constructor(props, context) {
+    super(props, context);
+
+    let todo = {
+      title: '',
+      description: '',
+      date: new Date(),
+      completed: false
+    };
+
+    if (props.params && props.params.id) {
+      const todoProp = this.props.todos[props.params.id];
+
+      todo = Object.assign({}, todoProp);
+      todo.date = new Date(todoProp.date);
+    }
+
+    this.state = { todo };
+
+    this.saveTodo = this.saveTodo.bind(this);
+  }
+
+  saveTodo(todo) {
+    if (this.props.params && this.props.params.id) {
+      this.props.actions.updateTodo(this.props.params.id, todo);
+    } else {
+      this.props.actions.createTodo(todo);
+    }
+  }
+
+  render() {
+    return (
+      <div className="todo-form-page container">
+        <TodoForm todo={this.state.todo} onSave={this.saveTodo} />
+      </div>
+    )
+  }
+}
+
+TodoFormPage.propTypes = {
+  actions: PropTypes.object,
+  params: PropTypes.object,
+  todos: PropTypes.array.isRequired
+};
+
+const mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return { actions: bindActionCreators(todoActions, dispatch) };
+},
+mapStateToProps = function mapStateToProps(state) {
+  return { todos: state.todoReducer };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TodoFormPage);
+```
+<br />
+[< Prev](./redux.html) | [Home](./) | [Next >](./time-travel-debugging.html)
+</xmp>
+
+<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>
+</html>

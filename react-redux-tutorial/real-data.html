@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[< Prev](./time-travel-debugging.html) | [Home](./) | [Next >](./stub-server-calls.html)
+#Express server
+###creating the express server
+
+```
+npm i -D webpack-hot-middleware
+```
+
+``` javascript
+var express = require('express');
+var bodyParser = require('body-parser');
+var path = require('path');
+
+var app = express();
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
+if (process.env.NODE_ENV != 'production') {
+  var webpack = require('webpack');
+  var webpackMiddleware = require("webpack-dev-middleware");
+  var webpackHotMiddleware = require("webpack-hot-middleware");
+  var webpackConfig = require('../../webpack.config.dev');
+  var compiler = webpack(webpackConfig);
+
+  app.use(webpackMiddleware(compiler,
+    {
+      noInfo: true,
+      quiet: true,
+      publicPath: webpackConfig.output.publicPath
+    }));
+
+  app.use(webpackHotMiddleware(compiler));
+}
+
+var STATIC_FILES_DIR = path.resolve(__dirname, '../client/public');
+
+app.use(express.static(STATIC_FILES_DIR));
+
+var todos = [{
+  id: 'task1',
+  title: 'task1',
+  description: 'important task',
+  date: new Date(),
+  completed: false
+}];
+
+function replaceAll(str, find, replace) {
+  return str.replace(new RegExp(find, 'g'), replace);
+}
+
+const generateId = (courseTitle) => {
+  return replaceAll(courseTitle, ' ', '-');
+};
+
+app.get('/api/todos', function (req, res) {
+  console.log('GET: api/todo');
+  console.log(todos);
+  res.json(todos);
+});
+
+app.post('/api/todos', function (req, res) {
+  console.log('POST: api/todo');
+  var todo = req.body;
+
+  todo.id = generateId(todo.title);
+
+  todos.push(todo);
+
+  res.json(todo);
+  console.log(todo);
+});
+
+app.get('/api/todos/:id', function (req, res) {
+  console.log('GET: api/todo/:id');
+  for (var i = 0; i < todos.length; i++) {
+    if (req.params.id == todos[i].id) {
+      res.json(todos[i]);
+      console.log(todos[i]);
+    }
+  }
+
+  res.status(404);
+});
+
+app.put('/api/todos/:id', function (req, res) {
+  console.log('PUT: api/todo/:id');
+  for (var i = 0; i < todos.length; i++) {
+    if (req.params.id == todos[i].id) {
+      let todo = todos[i];
+      var todoReq = req.body;
+      todo.title = todoReq.title;
+      todo.description = todoReq.description;
+      todo.date = new Date(todoReq.date);
+      todo.completed = todoReq.completed;
+      res.json(todo);
+      console.log(todo);
+    }
+  }
+
+  res.status(404);
+});
+
+app.delete('/api/todos/:id', function (req, res) {
+  console.log('DELETE: api/todo/:id');
+  var todo_id;
+  for (var i = 0; i < todos.length; i++) {
+    if (req.params.id == todos[i].id) {
+      todo_id = i;
+    }
+  }
+
+  if (todo_id) {
+    todos.splice(todo_id);
+    console.log(todo_id);
+    res.status(200);
+  }
+  else
+    res.status(404);
+});
+
+app.listen(3000, function () {
+  console.log(`express app listening on port 3000! in ${process.env.NODE_ENV} mode`);
+});
+```
+
+###webpack config for express
+``` javascript
+var webpack = require('webpack');
+var path = require('path');
+
+var BUILD_DIR = path.resolve(__dirname, 'src/client/public/assets');
+var APP_DIR = path.resolve(__dirname, 'src/client/app');
+
+// webpack options
+module.exports = {
+  entry: [APP_DIR + '/main.js', 'webpack-hot-middleware/client'],
+  output: {
+    publicPath: '/assets/',
+    path: BUILD_DIR,
+    filename: 'bundle.min.js'
+  },
+  devtool: 'inline-source-map',
+  module: {
+    loaders: [
+      { test: /\.js?$/, include: APP_DIR, loader: 'babel' },
+      { test: /\.css$/, loader: "style-loader!css-loader" },
+      { test: /\.eot$/, loader: "file" },
+      { test: /\.woff$/, loader: "file" },
+      { test: /\.woff2$/, loader: "file" },
+      { test: /\.ttf$/, loader: "file" },
+      { test: /\.svg$/, loader: 'svg-inline' }
+    ]
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ]
+};
+```
+
+###babel support for HMR
+```
+npm i -D babel-preset-react-hmre
+```
+``` javascript
+{
+  "presets" : ["es2015", "react"],
+  "env": {
+    "development": {
+      "presets": ["react-hmre"]
+    }
+  }
+}
+```
+
+### reverting the HTML script referance.
+``` html
+    <script src="./assets/bundle.min.js" type="text/javascript"></script>
+```
+
+###add scripts to start the express server.
+``` javascript
+    "dev": "set NODE_ENV=development&&node src/server/app.js",
+```
+
+###change the todo api
+```
+npm i -S whatwg-fetch
+```
+
+``` javascript
+import 'whatwg-fetch';
+
+const todoApi = {
+  'getAll': function getAll() {
+    return fetch('/api/todos').
+      then((response) => response.json());
+  },
+  'saveTodo': function saveTodo(todo) {
+    let resultPromise = null;
+
+    if (todo.id) {
+      resultPromise = fetch(`/api/todos/${todo.id}`, {
+        'method': 'PUT',
+        'headers': {'Content-Type': 'application/json'},
+        'body': JSON.stringify(todo)
+      });
+    } else {
+      resultPromise = fetch('/api/todos', {
+        'method': 'POST',
+        'headers': {'Content-Type': 'application/json'},
+        'body': JSON.stringify(todo)
+      });
+    }
+
+    return resultPromise.
+      then((response) => response.json());
+  }
+};
+
+export default todoApi;
+```
+
+###redux-thunk
+#####the thunk middleware
+```
+npm i -D redux-immutable-state-invariant
+npm i -S redux-thunk
+```
+
+``` javascript
+/* configure-store.js */
+import {applyMiddleware, compose, createStore} from 'redux';
+import reduxImmutableStateInvariant from 'redux-immutable-state-invariant';
+import {rootReducer} from '../root-reducer';
+import thunk from 'redux-thunk';
+
+const middleware = [thunk, reduxImmutableStateInvariant()];
+let AddDevExtMW = null;
+
+if (window.devToolsExtension) {
+    AddDevExtMW = window.devToolsExtension();
+} else {
+    AddDevExtMW = (devExtMW) => devExtMW;
+}
+
+/**
+ * Creates the redux store.
+ * @param {initialState} initialState the initial state for the redux store.
+ * @returns {store} The redux store.
+ */
+export default function configureStore (initialState) {
+    const store = createStore(
+        rootReducer,
+        initialState,
+        compose(
+            applyMiddleware(...middleware),
+            AddDevExtMW
+        )
+    );
+
+    return store;
+}
+```
+
+###changing actions to return functions
+``` javascript
+/* action-types.js */
+export const CREATE_TODO = 'CREATE_TODO',
+             LOAD_TODO = 'LOAD_TODO',
+             UPDATE_TODO = 'UPDATE_TODO';
+```
+
+```
+/* action-types.js */
+import * as actionTypes from './action-types';
+import todoApi from '../../api/todo';
+
+const todoActions = {
+  'createTodo': (todo) => {
+    const action = {
+      'type': actionTypes.CREATE_TODO,
+      todo
+    };
+
+    return action;
+  },
+  'updateTodo': (index, todo) => {
+    const action = {
+      'type': actionTypes.UPDATE_TODO,
+      todo,
+      index
+    };
+
+    return action;
+  },
+  'loadTodo': (todos) => {
+    const action = {
+      'type': actionTypes.LOAD_TODO,
+      todos
+    };
+
+    return action;
+  },
+  'loadTodosFromServer': () => {
+    const dispacher = (dispach) => {
+      todoApi.getAll().
+      then((todos) => {
+        dispach(todoActions.loadTodo(todos));
+      }).
+      catch((err) => {
+        throw err;
+      })
+    };
+
+    return dispacher;
+  },
+  'createTodoOnServer': (todo) => {
+    const dispacher = (dispach) => {
+      todoApi.saveTodo(todo).
+      then((todoData) => {
+        dispach(todoActions.createTodo(todoData));
+      }).
+      catch((err) => {
+        throw err;
+      })
+    };
+
+    return dispacher;
+  },
+  'updateTodoOnServer': (index, todo) => {
+    const dispacher = (dispach) => {
+      todoApi.saveTodo(todo).
+      then((todoData) => {
+        dispach(todoActions.updateTodo(index, todoData));
+      }).
+      catch((err) => {
+        throw err;
+      })
+    };
+
+    return dispacher;
+  }
+};
+
+export default todoActions;
+```
+
+###reducers to handle the load action
+``` javascript
+    case actionTypes.LOAD_TODO:
+      return [...action.todos];
+```
+
+###load action on store initialization
+``` javascript
+...
+import todoActions from './todo/actions/todo-actions';
+...
+
+...
+store.dispatch(todoActions.loadTodosFromServer());
+...
+```
+
+###components to use the new actions.
+``` javascript
+...
+  saveTodo(todo) {
+    if (this.props.params && this.props.params.id) {
+      this.props.actions.updateTodoOnServer(this.props.params.id, todo);
+    } else {
+      this.props.actions.createTodoOnServer(todo);
+    }
+  }
+...
+```
+
+``` javascript
+...
+  onTodoComplete(todoChecked, index) {
+    const todo = Object.assign({}, this.props.todos[index]);
+
+    todo.completed = todoChecked;
+    this.props.actions.updateTodoOnServer(index, todo);
+  }
+...
+```
+<br />
+[< Prev](./time-travel-debugging.html) | [Home](./) | [Next >](./stub-server-calls.html)
+</xmp>
+
+<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>
+</html>

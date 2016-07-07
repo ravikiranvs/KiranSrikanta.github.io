@@ -3,10 +3,11 @@
 <title>react-redux</title>
 
 <xmp theme="united" style="display:none;">
-[< Prev](./todo-form.html) | [Home](./) | [Next >](./mock-data.html)
+[< Prev](./todo-form.html) | [Home](./) | [Next >](./redux.html)
 #Mock data
 ###create some mock data
 ``` javascript
+/* [project]\src\client\app\api\todo.js */
 /* eslint-disable */
 let todos = [
   {
@@ -51,11 +52,15 @@ export default TodoApi;
 ```
 
 
-###todo page to get data from mock api
+###todo list page to get data from mock api
 ``` javascript
 /* [project]\src\client\app\todo\components\todo-list-page.js */
 ...
-    this.state = {tasks: TodoApi.getTodos()};
+import TodoApi from '../../api/todo';
+...
+
+...
+    this.state = {todos: TodoApi.getTodos()};
 ...
 
 ...
@@ -63,7 +68,7 @@ export default TodoApi;
     const tasks = this.state.tasks;
 
     tasks[index].completed = taskChecked;
-    TodoApi.updateTodo(tasks[index]);
+    TodoApi.updateTodo(todos[index]);
     this.setState({ tasks });
   }
 ...
@@ -85,6 +90,10 @@ export default TodoApi;
 ``` javascript
 /* [project]\src\client\app\todo\components\todo-form-page.js */
 ...
+import TodoApi from '../../api/todo';
+...
+
+...
     if (props.params && props.params.id) {
       todo = TodoApi.getTodo(props.params.id);
     }
@@ -103,7 +112,7 @@ export default TodoApi;
 
 **You can now edit todos.**
 <br />
-[< Prev](./todo-form.html) | [Home](./) | [Next >](./mock-data.html)
+[< Prev](./todo-form.html) | [Home](./) | [Next >](./redux.html)
 </xmp>
 
 <script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<title>react-redux</title>
+
+<xmp theme="united" style="display:none;">
+[< Prev](./stub-server-calls.html) | [Home](./)
+#redusing file size
+
+###webpack
+```
+npm i -D extract-text-webpack-plugin compression-webpack-plugin
+```
+``` javscript
+var webpack = require('webpack');
+var path = require('path');
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var CompressionPlugin = require("compression-webpack-plugin");
+
+var BUILD_DIR = path.resolve(__dirname, 'src/client/public/assets');
+var APP_DIR = path.resolve(__dirname, 'src/client/app');
+
+// webpack options
+module.exports = {
+  debug: true,
+  entry: APP_DIR + '/main.js',
+  output: {
+    publicPath: '/assets/',
+    path: BUILD_DIR,
+    filename: 'bundle.min.js'
+  },
+  target: 'web',
+  devtool: 'source-map',
+  devServer: {
+    historyApiFallback: true
+  },
+  module: {
+    loaders: [
+      { test: /\.js?$/, include: APP_DIR, loader: 'babel' },
+      { test: /\.css$/, loader: ExtractTextPlugin.extract("style-loader", "css-loader") },
+      { test: /\.eot$/, loader: "file" },
+      { test: /\.woff$/, loader: "file" },
+      { test: /\.woff2$/, loader: "file" },
+      { test: /\.ttf$/, loader: "file" },
+      { test: /\.svg$/, loader: 'svg-inline' }
+    ]
+  },
+  plugins: [
+    new webpack.optimize.OccurenceOrderPlugin(),
+    new webpack.optimize.DedupePlugin(),
+    new ExtractTextPlugin("bundle.min.css"),
+    new webpack.DefinePlugin({
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production')
+      }
+    }),
+    new webpack.optimize.UglifyJsPlugin({
+      compressor: { warnings: false },
+    }),
+    new CompressionPlugin({
+      asset: "[path].gz[query]",
+      algorithm: "gzip",
+      test: /\.js$|\.html$|\.css$/,
+      threshold: 10240,
+      minRatio: 0.8
+    })
+  ]
+};
+```
+
+#serving gzip files
+``` javascript
+...
+var gzipStatic = require('connect-gzip-static');
+...
+
+...
+//app.use(express.static(STATIC_FILES_DIR));
+app.use(gzipStatic(STATIC_FILES_DIR));
+...
+```
+
+#async module loading
+``` javascript
+import {IndexRoute, Route} from 'react-router';
+import App from './common/components/app';
+import HomePage from './home/components/home-page';
+import React from 'react';
+import TodoPage from './todo/components/todo-page';
+// import TodoListPage from './todo/components/todo-list-page';
+// import TodoFormPage from './todo/components/todo-form-page';
+
+const lazyLoadComponent = (ComponentPath) => {
+  const lazyLoadComponentFn = (location, cb) => {
+    require.ensure([], (require) => {
+      cb(null, require(ComponentPath).default);
+    });
+  }
+
+  return lazyLoadComponentFn;
+}
+
+export default (
+  <Route path="/" component={App}>
+    <IndexRoute component={HomePage} />
+    <Route path="todo" component={TodoPage}>
+      <IndexRoute getComponent={lazyLoadComponent('./todo/components/todo-list-page') } />
+      <Route path="new" getComponent={lazyLoadComponent('./todo/components/todo-form-page') }/>
+      <Route path="edit/:id" getComponent={lazyLoadComponent('./todo/components/todo-form-page') }/>
+    </Route>
+  </Route>
+);
+```
+
+###webpack to handle chunks
+``` javascript
+...
+  entry: {
+    bundle: APP_DIR + '/main.js'
+  },
+  output: {
+    publicPath: '/assets/',
+    path: BUILD_DIR,
+    filename: '[name].min.js',
+    chunkFilename: 'bundle.[name].min.js'
+  },
+...
+
+
+```
+[Analyse Webpack Chunking](http://webpack.github.io/analyse/)
+#coverage report
+```
+npm i -D isparta-loader karma-coverage
+```
+
+``` javascript
+var path = require('path');
+var webpack = require('webpack');
+var WebpackTestConfig = require('./webpack.config.coverage.js');
+
+process.env.NODE_ENV = 'test';
+
+module.exports = function (config) {
+  config.set({
+    browsers: [ 'Chrome' ],
+    // karma only needs to know about the test bundle
+    files: [
+      'tests.bundle.js'
+    ],
+    frameworks: [ 'chai', 'sinon-stub-promise', 'sinon-chai', 'mocha' ],
+    plugins: [
+      'karma-chrome-launcher',
+      'karma-chai-plugins',
+      'karma-mocha',
+      'karma-sourcemap-loader',
+      'karma-webpack',
+      'karma-mocha-reporter',
+      'karma-sinon-stub-promise',
+      'karma-coverage',
+    ],
+    // run the bundle through the webpack and sourcemap plugins
+    preprocessors: {
+      'tests.bundle.js': [ 'webpack', 'sourcemap' ]
+    },
+    reporters: [ 'coverage' ],
+    coverageReporter: {
+        type: 'text'
+    },
+    singleRun: true,
+    // webpack config object
+    webpack: WebpackTestConfig,
+    webpackMiddleware: {
+      noInfo: true,
+    }
+  });
+};
+```
+
+
+``` javascript
+var webpack = require('webpack');
+var path = require('path');
+
+var TEST_DIR = path.resolve(__dirname, 'src/client/tests');
+var APP_DIR = path.resolve(__dirname, 'src/client/app');
+
+module.exports = {
+  debug: true,
+  devtool: 'inline-source-map',
+  noInfo: true,
+  babel: {
+    presets: ['es2015', 'react']
+  },
+  isparta: {
+      embedSource: true,
+      noAutoWrap: true,
+      // these babel options will be passed only to isparta and not to babel-loader
+      babel: {
+          presets: ['es2015', 'react']
+      }
+  },
+  module: {
+    loaders: [
+      { test: /\.js?$/, include: [TEST_DIR, APP_DIR], loader: 'babel' },
+      { test: /\.css$/, loader: "style-loader!css-loader" },
+      { test: /\.eot$/, loader: "file" },
+      { test: /\.woff$/, loader: "file" },
+      { test: /\.woff2$/, loader: "file" },
+      { test: /\.ttf$/, loader: "file" },
+      { test: /\.svg$/, loader: 'svg-inline' }
+    ],
+    preLoaders: [ 
+      {
+        test: /\.js$/,
+        exclude: [
+            path.resolve('src/components/'),
+            path.resolve('node_modules/')
+        ],
+        loader: 'babel'
+      },
+      {
+        test: /\.js$/,
+        include: path.resolve('src/client/app'),
+        loader: 'isparta'
+      }
+    ]
+  }
+};
+```
+
+``` javascript
+    "coverage": "karma start karma.conf.coverage.js"
+```
+<br />
+[< Prev](./stub-server-calls.html) | [Home](./)
+</xmp>
+
+<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>
+</html>
