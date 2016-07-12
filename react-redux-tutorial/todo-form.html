@@ -6,21 +6,30 @@
 [< Prev](./todo-list.html) | [Home](./) | [Next >](./mock-data.html)
 #Todo Form
 
-###new form route
+###empty todo-form dumb component
 ``` javascript
-/** [project]\src\client\app\routes.js **/
-...
-import TodoFormPage from './todo/components/todo-form-page';
-...
+/** [project]\src\client\app\todo\components\todo-form.js **/
+import React, {PropTypes} from 'react';
 
-...
-    <Route path="todo" component={TodoPage}>
-      <IndexRoute component={TodoListPage} />
-      <Route path="new" component={TodoFormPage}/>
-    </Route>
-...
+class TodoForm extends React.Component {
+  render() {
+    return (
+      <div className="todo-form">
+        <h1>Todo Form</h1>
+      </div>
+    );
+  }
+}
+
+TodoForm.propTypes = {
+  todo: PropTypes.object,
+  onSave: PropTypes.func.isRequired
+};
+
+export default TodoForm;
 ```
-#####The todo form container page
+
+#####The todo form smart component
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-form-page.js **/
 import React, {PropTypes} from 'react';
@@ -30,7 +39,13 @@ class TodoFormPage extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    const todo = null;
+    const todo = {
+      title: '',
+      description: '',
+      date: new Date(),
+      completed: false
+    };
+
     // TODO: Code to get todo.
 
     this.state = { todo };
@@ -54,30 +69,25 @@ TodoFormPage.propTypes = { params: PropTypes.object };
 
 export default TodoFormPage;
 ```
-#####The todo form initial component render 
+
+###adding the route for todo-form
 ``` javascript
-/** [project]\src\client\app\todo\components\todo-form.js **/
-import React, {PropTypes} from 'react';
+/** [project]\src\client\app\routes.js **/
+...
+import TodoFormPage from './todo/components/todo-form-page';
+...
 
-class TodoForm extends React.Component {
-  render() {
-    return (
-      <div className="todo-form">
-        <h1>Todo Form</h1>
-      </div>
-    );
-  }
-}
-
-TodoForm.propTypes = {
-  todo: PropTypes.object,
-  onSave: PropTypes.func.isRequired
-};
-
-export default TodoForm;
+...
+    <Route path="todo" component={TodoPage}>
+      <IndexRoute component={TodoListPage} />
+      <Route path="new" component={TodoFormPage}/>
+      <Route path="edit/:id" component={TodoFormPage}/>
+    </Route>
+...
 ```
 
-#####add todo link
+
+#####add navigation links for the todo-list
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-list-page.js **/
 import {Link} from 'react-router';
@@ -101,7 +111,7 @@ Check if routing is working
 
 [Bootstrap form validation](http://getbootstrap.com/css/#forms-control-validation)
 
-###tests
+###tests first
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-form.spec.js **/
 /* eslint-disable */
@@ -184,6 +194,8 @@ class TodoForm extends React.Component {
 
     return date;
   }
+
+  /* eslint-enablr no-magic-numbers */
 
   onSubmit(event) {
     event.preventDefault();

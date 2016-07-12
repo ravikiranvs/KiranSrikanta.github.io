@@ -12,6 +12,7 @@ npm i -D webpack-hot-middleware
 ```
 
 ``` javascript
+/** [project]\src\server\app.js **/
 var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
@@ -130,6 +131,7 @@ app.listen(3000, function () {
 
 ###webpack config for express
 ``` javascript
+/** [project]\webpack.config.dev.js **/
 var webpack = require('webpack');
 var path = require('path');
 
@@ -167,6 +169,7 @@ module.exports = {
 npm i -D babel-preset-react-hmre
 ```
 ``` javascript
+/** [project]\.babelrc **/
 {
   "presets" : ["es2015", "react"],
   "env": {
@@ -179,11 +182,15 @@ npm i -D babel-preset-react-hmre
 
 ### reverting the HTML script referance.
 ``` html
+<!-- [project]\src\client\public\index.html -->
+...
     <script src="./assets/bundle.min.js" type="text/javascript"></script>
+...
 ```
 
 ###add scripts to start the express server.
 ``` javascript
+/** [project]\package.json **/
     "dev": "set NODE_ENV=development&&node src/server/app.js",
 ```
 
@@ -193,6 +200,7 @@ npm i -S whatwg-fetch
 ```
 
 ``` javascript
+/* [project]\src\client\app\api\todo.js */
 import 'whatwg-fetch';
 
 const todoApi = {
@@ -225,7 +233,7 @@ const todoApi = {
 export default todoApi;
 ```
 
-###redux-thunk
+#redux-thunk
 #####the thunk middleware
 ```
 npm i -D redux-immutable-state-invariant
@@ -233,50 +241,26 @@ npm i -S redux-thunk
 ```
 
 ``` javascript
-/* configure-store.js */
-import {applyMiddleware, compose, createStore} from 'redux';
-import reduxImmutableStateInvariant from 'redux-immutable-state-invariant';
-import {rootReducer} from '../root-reducer';
+/* [project]\src\client\app\store\configure-store.js */
+...
 import thunk from 'redux-thunk';
 
+
 const middleware = [thunk, reduxImmutableStateInvariant()];
-let AddDevExtMW = null;
-
-if (window.devToolsExtension) {
-    AddDevExtMW = window.devToolsExtension();
-} else {
-    AddDevExtMW = (devExtMW) => devExtMW;
-}
-
-/**
- * Creates the redux store.
- * @param {initialState} initialState the initial state for the redux store.
- * @returns {store} The redux store.
- */
-export default function configureStore (initialState) {
-    const store = createStore(
-        rootReducer,
-        initialState,
-        compose(
-            applyMiddleware(...middleware),
-            AddDevExtMW
-        )
-    );
-
-    return store;
-}
+...
 ```
 
-###changing actions to return functions
+#####adding a new load todos action type
 ``` javascript
-/* action-types.js */
+/* [project]\src\client\app\todo\actions\action-types.js */
 export const CREATE_TODO = 'CREATE_TODO',
              LOAD_TODO = 'LOAD_TODO',
              UPDATE_TODO = 'UPDATE_TODO';
 ```
 
+#####actions that will make calls to the server
 ```
-/* action-types.js */
+/* [project]\src\client\app\todo\actions\todo-actions.js */
 import * as actionTypes from './action-types';
 import todoApi from '../../api/todo';
 
@@ -352,12 +336,16 @@ export default todoActions;
 
 ###reducers to handle the load action
 ``` javascript
+/* [project]\src\client\app\todo\reducers\todo-reducer.js */
+...
     case actionTypes.LOAD_TODO:
       return [...action.todos];
+...
 ```
 
-###load action on store initialization
+###load action to be dispatched on store initialization
 ``` javascript
+/** [project]\src\client\app\main.js **/
 ...
 import todoActions from './todo/actions/todo-actions';
 ...
@@ -369,6 +357,7 @@ store.dispatch(todoActions.loadTodosFromServer());
 
 ###components to use the new actions.
 ``` javascript
+/** [project]\src\client\app\todo\components\todo-form-page.js **/
 ...
   saveTodo(todo) {
     if (this.props.params && this.props.params.id) {
@@ -381,6 +370,7 @@ store.dispatch(todoActions.loadTodosFromServer());
 ```
 
 ``` javascript
+/** [project]\src\client\app\todo\components\todo-list-page.js **/
 ...
   onTodoComplete(todoChecked, index) {
     const todo = Object.assign({}, this.props.todos[index]);

@@ -4,7 +4,7 @@
 
 <xmp theme="united" style="display:none;">
 [< Prev](./new-route.html) | [Home](./) | [Next >](./todo-form.html)
-#todo list component
+#todo list dumb component
 
 ###What's the ui
 [The Basic Bootstrap Table](http://getbootstrap.com/css/#tables)
@@ -79,13 +79,13 @@ Show a 'no data' message.
           title: 'task1',
           description: 'important task',
           completed: false,
-          date: (new Date()).toISOString().substring(0, 10)
+          date: new Date()
         },
         {
           title: 'task2',
           description: 'another important task',
           completed: false,
-          date: (new Date()).toISOString().substring(0, 10)
+          date: new Date()
         }
       ],
       onComplete: function (isComplete, index) {

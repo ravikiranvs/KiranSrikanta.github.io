@@ -18,10 +18,6 @@ let todos = [
   }
 ];
 
-Object.assign = function (params, obj) {
-  return obj;
-}
-
 const TodoApi = {
   getTodos: function () {
     return todos.slice(0);
@@ -64,25 +60,13 @@ import TodoApi from '../../api/todo';
 ...
 
 ...
-  onTaskComplete(taskChecked, index) {
-    const tasks = this.state.tasks;
+  onTodoComplete(todoChecked, index) {
+    const todos = this.state.todos;
 
-    tasks[index].completed = taskChecked;
+    todos[index].completed = todoChecked;
     TodoApi.updateTodo(todos[index]);
-    this.setState({ tasks });
+    this.setState({ todos });
   }
-...
-```
-
-###add edit route
-``` javascript
-/** [project]\src\client\app\routes.js **/
-...
-    <Route path="todo" component={TodoPage}>
-      <IndexRoute component={TodoListPage} />
-      <Route path="new" component={TodoFormPage}/>
-      <Route path="edit/:id" component={TodoFormPage}/>
-    </Route>
 ...
 ```
 

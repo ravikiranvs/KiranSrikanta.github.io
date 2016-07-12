@@ -11,6 +11,7 @@
 npm i -D extract-text-webpack-plugin compression-webpack-plugin
 ```
 ``` javscript
+/** [project]\webpack.config.js **/
 var webpack = require('webpack');
 var path = require('path');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
@@ -69,6 +70,7 @@ module.exports = {
 
 #serving gzip files
 ``` javascript
+/** [project]\webpack.config.js **/
 ...
 var gzipStatic = require('connect-gzip-static');
 ...
@@ -81,6 +83,7 @@ app.use(gzipStatic(STATIC_FILES_DIR));
 
 #async module loading
 ``` javascript
+/** [project]\src\client\app\routes.js **/
 import {IndexRoute, Route} from 'react-router';
 import App from './common/components/app';
 import HomePage from './home/components/home-page';
@@ -113,6 +116,7 @@ export default (
 
 ###webpack to handle chunks
 ``` javascript
+/** [project]\webpack.config.js **/
 ...
   entry: {
     bundle: APP_DIR + '/main.js'
@@ -124,10 +128,10 @@ export default (
     chunkFilename: 'bundle.[name].min.js'
   },
 ...
-
-
 ```
-[Analyse Webpack Chunking](http://webpack.github.io/analyse/)
+
+[Analyse Webpack Chunking with `webpack --json filename.json`](http://webpack.github.io/analyse/)
+
 #coverage report
 ```
 npm i -D isparta-loader karma-coverage

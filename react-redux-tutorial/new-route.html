@@ -6,7 +6,8 @@
 [< Prev](./testing.html) | [Home](./) | [Next >](./todo-list.html)
 #Adding a new route
 
-###The components for the route 
+###The components for the route
+#####the parent todo component that will contain 'list of todos'' and a 'todo form' components as children.
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-page.js **/
 import React, {PropTypes} from 'react';
@@ -26,6 +27,7 @@ TodoPage.propTypes = {children: PropTypes.object};
 export default TodoPage;
 ```
 
+#####the todo list smart component
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-list-page.js **/
 import React from 'react';
@@ -42,7 +44,7 @@ class TodoListPage extends React.Component {
 
 export default TodoListPage;
 ```
-add a testcase
+adding a testcase
 ``` javascript
 /* [project]\src\client\app\todo\components\todo-list-page.spec.js */
 /* eslint-disable */

@@ -6,6 +6,10 @@
 [< Prev](./redux.html) | [Home](./) | [Next >](./time-travel-debugging.html)
 #redux
 
+```
+npm i -S redux react-redux
+npm i -D redux-immutable-state-invariant
+```
 ###Action Creators and Action Types
 ``` javascript
 /* [project]\src\client\app\todo\actions\action-types.js */
@@ -84,8 +88,19 @@ export default rootReducer;
 ###The Store
 ``` javascript
 /* [project]\src\client\app\store\configure-store.js */
-import {createStore} from 'redux';
+import {applyMiddleware, compose, createStore} from 'redux';
+import reduxImmutableStateInvariant from 'redux-immutable-state-invariant';
 import {rootReducer} from '../root-reducer';
+
+
+const middleware = [reduxImmutableStateInvariant()];
+let AddDevExtMW = null;
+
+if (window.devToolsExtension) {
+    AddDevExtMW = window.devToolsExtension();
+} else {
+    AddDevExtMW = (devExtMW) => devExtMW;
+}
 
 /**
  * Creates the redux store.
@@ -95,7 +110,11 @@ import {rootReducer} from '../root-reducer';
 export default function configureStore (initialState) {
     const store = createStore(
         rootReducer,
-        initialState
+        initialState,
+        compose(
+            applyMiddleware(...middleware),
+            AddDevExtMW
+        )
     );
 
     return store;
@@ -105,14 +124,11 @@ export default function configureStore (initialState) {
 #####Initializing the store
 ``` javascript
 /* [project]\src\client\app\main.js */
-import '../../../node_modules/bootstrap/dist/css/bootstrap.css';
-import '../../../node_modules/bootstrap/dist/css/bootstrap-theme.css';
+...
 import {Provider} from 'react-redux';
-import {Router, browserHistory} from 'react-router';
-import React from 'react';
-import {render} from 'react-dom';
+...
 import configureStore from './store/configure-store';
-import routes from './routes';
+...
 
 const store = configureStore();
 
@@ -160,39 +176,28 @@ chaiJQuery(chai, chai.util, jQuery);
 export {renderComponent};
 ```
 
-###components
+###components to work with redux
 #####the todo list page
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-list-page.js **/
 ...
-import todoActions from '../actions/todo-actions';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
+import todoActions from '../actions/todo-actions';
+...
 
-class TodoListPage extends React.Component {
-  constructor() {
-    super();
-
-    this.onTodoComplete = this.onTodoComplete.bind(this);
-  }
-
-  onTodoComplete(todoChecked, index) {
+...
     const todo = Object.assign({}, this.props.todos[index]);
 
     todo.completed = todoChecked;
     this.props.actions.updateTodo(index, todo);
-  }
+...
 
-  render() {
-    return (
-      <div className="todo-list-page">
+...
         <TodoList todos={this.props.todos} onComplete={this.onTodoComplete} />
-        <Link to="/todo/new">Add Todo</Link>
-      </div>
-    );
-  }
-}
+...
 
+...
 TodoListPage.propTypes = {
   actions: PropTypes.object,
   todos: PropTypes.array
@@ -206,58 +211,32 @@ mapStateToProps = function mapStateToProps(state) {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TodoListPage);
-...
+
 ```
 
 #####the todo form page
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-form-page.js **/
-import React, {PropTypes} from 'react';
-import TodoForm from './todo-form';
-import todoActions from '../actions/todo-actions';
+...
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
+import todoActions from '../actions/todo-actions';
+...
 
-class TodoFormPage extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-
-    let todo = {
-      title: '',
-      description: '',
-      date: new Date(),
-      completed: false
-    };
-
-    if (props.params && props.params.id) {
+...
       const todoProp = this.props.todos[props.params.id];
 
       todo = Object.assign({}, todoProp);
       todo.date = new Date(todoProp.date);
-    }
+...
 
-    this.state = { todo };
-
-    this.saveTodo = this.saveTodo.bind(this);
-  }
-
-  saveTodo(todo) {
-    if (this.props.params && this.props.params.id) {
-      this.props.actions.updateTodo(this.props.params.id, todo);
-    } else {
+...
+      this.props.actions.updateTodo(todo, this.props.params.id);
+      ...
       this.props.actions.createTodo(todo);
-    }
-  }
+...
 
-  render() {
-    return (
-      <div className="todo-form-page container">
-        <TodoForm todo={this.state.todo} onSave={this.saveTodo} />
-      </div>
-    )
-  }
-}
-
+...
 TodoFormPage.propTypes = {
   actions: PropTypes.object,
   params: PropTypes.object,
