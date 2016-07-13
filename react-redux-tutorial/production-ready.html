@@ -9,6 +9,7 @@
 ###webpack
 ```
 npm i -D extract-text-webpack-plugin compression-webpack-plugin
+npm i -S connect-gzip-static
 ```
 ``` javscript
 /** [project]\webpack.config.js **/
@@ -67,10 +68,17 @@ module.exports = {
   ]
 };
 ```
+###adding css link to index.html
+``` html
+/** [project]\src\client\public\index.html **/
+...
+<link rel="stylesheet" type="text/css" href="./assets/bundle.min.css" />
+...
+```
 
-#serving gzip files
+###serving gzip files
 ``` javascript
-/** [project]\webpack.config.js **/
+/** [project]\src\server\app.js **/
 ...
 var gzipStatic = require('connect-gzip-static');
 ...
@@ -81,6 +89,88 @@ app.use(gzipStatic(STATIC_FILES_DIR));
 ...
 ```
 
+###configure a prod store
+#####dev store
+``` javascript
+/* [project]\src\client\app\store\configure-store.dev.js */
+import {applyMiddleware, compose, createStore} from 'redux';
+import reduxImmutableStateInvariant from 'redux-immutable-state-invariant';
+import {rootReducer} from '../root-reducer';
+import thunk from 'redux-thunk';
+
+const middleware = [thunk, reduxImmutableStateInvariant()];
+let AddDevExtMW = null;
+
+if (window.devToolsExtension) {
+    AddDevExtMW = window.devToolsExtension();
+} else {
+    AddDevExtMW = (devExtMW) => devExtMW;
+}
+
+/**
+ * Creates the redux store.
+ * @param {initialState} initialState the initial state for the redux store.
+ * @returns {store} The redux store.
+ */
+export default function configureStore (initialState) {
+    const store = createStore(
+        rootReducer,
+        initialState,
+        compose(
+            applyMiddleware(...middleware),
+            AddDevExtMW
+        )
+    );
+
+    return store;
+}
+```
+
+#####dev store
+``` javascript
+/* [project]\src\client\app\store\configure-store.prod.js */
+import {applyMiddleware, createStore} from 'redux';
+import {rootReducer} from '../root-reducer';
+import thunk from 'redux-thunk';
+
+const middleware = [thunk];
+
+/**
+ * Creates the redux store.
+ * @param {initialState} initialState the initial state for the redux store.
+ * @returns {store} The redux store.
+ */
+export default function configureStore (initialState) {
+    const store = createStore(
+        rootReducer,
+        initialState,
+        applyMiddleware(...middleware)
+    );
+
+    return store;
+}
+```
+
+#####the configure-store module
+``` javascript
+/* [project]\src\client\app\store\configure-store.js */
+/* eslint-disable */
+if (process.env.NODE_ENV === 'production') {
+  module.exports = require('./configure-store.prod.js');
+} else {
+  module.exports = require('./configure-store.dev.js');
+}
+```
+
+###adding scripts to serve production app
+``` javascript
+/* [project]\package.json */
+...
+    "build": "set NODE_ENV=production&&webpack -p",
+    "prod": "set NODE_ENV=production&&node src/server/app.js",
+...
+```
+
 #async module loading
 ``` javascript
 /** [project]\src\client\app\routes.js **/
@@ -88,27 +178,28 @@ import {IndexRoute, Route} from 'react-router';
 import App from './common/components/app';
 import HomePage from './home/components/home-page';
 import React from 'react';
-import TodoPage from './todo/components/todo-page';
-// import TodoListPage from './todo/components/todo-list-page';
 // import TodoFormPage from './todo/components/todo-form-page';
+// import TodoListPage from './todo/components/todo-list-page';
+import TodoPage from './todo/components/todo-page';
 
-const lazyLoadComponent = (ComponentPath) => {
-  const lazyLoadComponentFn = (location, cb) => {
-    require.ensure([], (require) => {
-      cb(null, require(ComponentPath).default);
-    });
-  }
-
-  return lazyLoadComponentFn;
-}
+const lazyLoadTodoFormComponent = (location, cb) => {
+  require.ensure([], (require) => {
+    cb(null, require('./todo/components/todo-form-page').default);
+  });
+},
+lazyLoadTodoListComponent = (location, cb) => {
+  require.ensure([], (require) => {
+    cb(null, require('./todo/components/todo-list-page').default);
+  });
+};
 
 export default (
   <Route path="/" component={App}>
     <IndexRoute component={HomePage} />
     <Route path="todo" component={TodoPage}>
-      <IndexRoute getComponent={lazyLoadComponent('./todo/components/todo-list-page') } />
-      <Route path="new" getComponent={lazyLoadComponent('./todo/components/todo-form-page') }/>
-      <Route path="edit/:id" getComponent={lazyLoadComponent('./todo/components/todo-form-page') }/>
+      <IndexRoute getComponent={lazyLoadTodoListComponent} />
+      <Route path="new" getComponent={lazyLoadTodoFormComponent}/>
+      <Route path="edit/:id" getComponent={lazyLoadTodoFormComponent}/>
     </Route>
   </Route>
 );
@@ -130,7 +221,7 @@ export default (
 ...
 ```
 
-[Analyse Webpack Chunking with `webpack --json filename.json`](http://webpack.github.io/analyse/)
+[Analyse Webpack Chunking with `node_modules\.bin\webpack --json > webpack.debug.json`](http://webpack.github.io/analyse/)
 
 #coverage report
 ```
@@ -138,6 +229,8 @@ npm i -D isparta-loader karma-coverage
 ```
 
 ``` javascript
+/** karma.conf.coverage.js **/
+/* eslint-disable */
 var path = require('path');
 var webpack = require('webpack');
 var WebpackTestConfig = require('./webpack.config.coverage.js');
@@ -146,12 +239,12 @@ process.env.NODE_ENV = 'test';
 
 module.exports = function (config) {
   config.set({
-    browsers: [ 'Chrome' ],
+    browsers: ['Chrome'],
     // karma only needs to know about the test bundle
     files: [
       'tests.bundle.js'
     ],
-    frameworks: [ 'chai', 'sinon-stub-promise', 'sinon-chai', 'mocha' ],
+    frameworks: ['chai', 'sinon-stub-promise', 'sinon-chai', 'mocha'],
     plugins: [
       'karma-chrome-launcher',
       'karma-chai-plugins',
@@ -164,11 +257,11 @@ module.exports = function (config) {
     ],
     // run the bundle through the webpack and sourcemap plugins
     preprocessors: {
-      'tests.bundle.js': [ 'webpack', 'sourcemap' ]
+      'tests.bundle.js': ['webpack', 'sourcemap']
     },
-    reporters: [ 'coverage' ],
+    reporters: ['coverage'],
     coverageReporter: {
-        type: 'text'
+      type: 'text'
     },
     singleRun: true,
     // webpack config object
@@ -182,6 +275,8 @@ module.exports = function (config) {
 
 
 ``` javascript
+/** webpack.config.coverage.js **/
+/* eslint-disable */
 var webpack = require('webpack');
 var path = require('path');
 
@@ -196,12 +291,12 @@ module.exports = {
     presets: ['es2015', 'react']
   },
   isparta: {
-      embedSource: true,
-      noAutoWrap: true,
-      // these babel options will be passed only to isparta and not to babel-loader
-      babel: {
-          presets: ['es2015', 'react']
-      }
+    embedSource: true,
+    noAutoWrap: true,
+    // these babel options will be passed only to isparta and not to babel-loader
+    babel: {
+      presets: ['es2015', 'react']
+    }
   },
   module: {
     loaders: [
@@ -213,12 +308,12 @@ module.exports = {
       { test: /\.ttf$/, loader: "file" },
       { test: /\.svg$/, loader: 'svg-inline' }
     ],
-    preLoaders: [ 
+    preLoaders: [
       {
         test: /\.js$/,
         exclude: [
-            path.resolve('src/components/'),
-            path.resolve('node_modules/')
+          path.resolve('src/components/'),
+          path.resolve('node_modules/')
         ],
         loader: 'babel'
       },

@@ -13,6 +13,7 @@ npm i -D webpack-hot-middleware
 
 ``` javascript
 /** [project]\src\server\app.js **/
+/* eslint-disable */
 var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
@@ -132,6 +133,7 @@ app.listen(3000, function () {
 ###webpack config for express
 ``` javascript
 /** [project]\webpack.config.dev.js **/
+/* eslint-disable */
 var webpack = require('webpack');
 var path = require('path');
 
