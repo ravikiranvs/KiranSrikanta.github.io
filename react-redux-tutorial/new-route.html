@@ -4,10 +4,10 @@
 
 <xmp theme="united" style="display:none;">
 [< Prev](./testing.html) | [Home](./) | [Next >](./todo-list.html)
-#Adding a new route
+#Adding route for the todo list
 
 ###The components for the route
-#####the parent todo component that will contain 'list of todos'' and a 'todo form' components as children.
+#####the parent todo component that will contain 'list of todos' and a 'todo form' components as children.
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-page.js **/
 import React, {PropTypes} from 'react';
@@ -44,6 +44,7 @@ class TodoListPage extends React.Component {
 
 export default TodoListPage;
 ```
+
 adding a testcase
 ``` javascript
 /* [project]\src\client\app\todo\components\todo-list-page.spec.js */
@@ -62,6 +63,7 @@ describe('Todo List Page', function () {
   })
 });
 ```
+
 ###Adding the route
 ``` javascript
 /** [project]\src\client\app\routes.js **/
@@ -77,7 +79,7 @@ import TodoPage from './todo/components/todo-page';
 ...
 ```
 
-###Let webpack handle multiple routes
+###Let webpack handle hot reloading for multiple routes
 ``` javascript
 /** [project]\webpack.config.js **/
 ...
@@ -92,7 +94,7 @@ import TodoPage from './todo/components/todo-page';
     <script src="http://localhost:9000/assets/bundle.min.js" type="text/javascript"></script>
 ...
 ```
-[the right way of configuring this.](https://github.com/webpack/webpack-dev-server/issues/48#issuecomment-54102027)
+Temp fix, we shall change this later on. [The right way of configuring this.](https://github.com/webpack/webpack-dev-server/issues/48#issuecomment-54102027)
 
 Now see if the new route is working with hot-reload.
 <br />

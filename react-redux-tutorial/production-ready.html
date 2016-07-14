@@ -5,8 +5,15 @@
 <xmp theme="united" style="display:none;">
 [< Prev](./stub-server-calls.html) | [Home](./)
 #redusing file size
+This involves:
 
-###webpack
++ Removing duplicate modules
++ Extracting css to a different file
++ Building all modules with NODE_ENV as production
++ Minification
++ gzip
+
+###changing webpack config
 ```
 npm i -D extract-text-webpack-plugin compression-webpack-plugin
 npm i -S connect-gzip-static
@@ -76,7 +83,7 @@ module.exports = {
 ...
 ```
 
-###serving gzip files
+###serving gzip files with express
 ``` javascript
 /** [project]\src\server\app.js **/
 ...
@@ -89,7 +96,7 @@ app.use(gzipStatic(STATIC_FILES_DIR));
 ...
 ```
 
-###configure a prod store
+###configure a prod redux store
 #####dev store
 ``` javascript
 /* [project]\src\client\app\store\configure-store.dev.js */
@@ -126,7 +133,7 @@ export default function configureStore (initialState) {
 }
 ```
 
-#####dev store
+#####prod store
 ``` javascript
 /* [project]\src\client\app\store\configure-store.prod.js */
 import {applyMiddleware, createStore} from 'redux';
@@ -151,7 +158,7 @@ export default function configureStore (initialState) {
 }
 ```
 
-#####the configure-store module
+#####the configure-store module dynamically uses a store based on NODE_ENV
 ``` javascript
 /* [project]\src\client\app\store\configure-store.js */
 /* eslint-disable */
@@ -162,7 +169,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 ```
 
-###adding scripts to serve production app
+###adding scripts to serve the production app locally
 ``` javascript
 /* [project]\package.json */
 ...
@@ -171,7 +178,10 @@ if (process.env.NODE_ENV === 'production') {
 ...
 ```
 
-#async module loading
+#async module loading with webpack
+
+####removing imports in router and having components lazy load
+
 ``` javascript
 /** [project]\src\client\app\routes.js **/
 import {IndexRoute, Route} from 'react-router';
@@ -205,7 +215,7 @@ export default (
 );
 ```
 
-###webpack to handle chunks
+###configuring webpack to name chunks appropriatly
 ``` javascript
 /** [project]\webpack.config.js **/
 ...
@@ -224,6 +234,8 @@ export default (
 [Analyse Webpack Chunking with `node_modules\.bin\webpack --json > webpack.debug.json`](http://webpack.github.io/analyse/)
 
 #coverage report
+
+Installing Instnbul and Karma coverage
 ```
 npm i -D isparta-loader karma-coverage
 ```
@@ -273,7 +285,7 @@ module.exports = function (config) {
 };
 ```
 
-
+Configuring webpack to work with Istanbul.js
 ``` javascript
 /** webpack.config.coverage.js **/
 /* eslint-disable */
@@ -327,6 +339,7 @@ module.exports = {
 };
 ```
 
+**Generating the coverage report**
 ``` javascript
     "coverage": "karma start karma.conf.coverage.js"
 ```

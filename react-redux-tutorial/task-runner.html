@@ -6,7 +6,7 @@
 [< Prev](./htrld-eslnt.html) | [Home](./) | [Next >](./routing.html)
 #npm as a task runner
 
-###Configure npm scripts command
+###Configure npm script commands
 Make the following changes to `package.json` 
 ``` javascript
 /** [project]\package.json **/
@@ -17,6 +17,11 @@ Make the following changes to `package.json`
     "lint:watch": "esw src/client/app/**/*.js -w"
   },
 ...
+```
+
+#####How to run a script command
+```
+[project]> npm run {script name}
 ```
 
 ###Running tasks in parallel
@@ -32,11 +37,12 @@ Add script to run tasks in parallel
 ...
 ```
 
-Keep hot reloading and linting running
+This script command will keep hot reloading and linting running.
+
+Run the `start` script
 ```
 [project]> npm start
 ```
-That's it! Just `Ctrl+S` and see the browser from now on.
 
 <br />
 [< Prev](./htrld-eslnt.html) | [Home](./) | [Next >](./routing.html)

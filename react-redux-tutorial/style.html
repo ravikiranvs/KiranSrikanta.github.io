@@ -4,15 +4,15 @@
 
 <xmp theme="united" style="display:none;">
 [< Prev](./routing.html) | [Home](./) | [Next >](./app-structure.html)
-#Style - CSS
+#css
 
 ###Bootstrap with webpack
-install bootstrap and webpack loaders
+install bootstrap and webpack loaders for css files
 ```
 [project]> npm i -D bootstrap style-loader css-loader file-loader svg-inline-loader
 ```
 
-add bootstrap to our app
+adding bootstrap to our app
 ``` javascript
 /** [project]\src\client\app\main.js **/
 import '../../../node_modules/bootstrap/dist/css/bootstrap.css';
@@ -38,7 +38,7 @@ let webpack know how to handle `*.css` files
 ...
 ```
 
-**webpack will now bundle css files in the bundle.min.js file.** Did you see any changes in the browser?
+**webpack will now bundle css files into the bundle.min.js file.** Did you see any changes in the browser after doing this?
 
 <br />
 [< Prev](./routing.html) | [Home](./) | [Next >](./app-structure.html)

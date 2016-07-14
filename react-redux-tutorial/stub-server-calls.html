@@ -5,11 +5,12 @@
 <xmp theme="united" style="display:none;">
 [< Prev](./real-data.html) | [Home](./) | [Next >](./production-ready.html)
 #Testing a smart component.
+installing required mock packages: sinon, redux mock store.
 ```
 npm i sinon-stub-promise karma-sinon-stub-promise redux-mock-store -D
 ```
 
-####karma config to use sinon
+####karma config changes to use sinon
 ``` javascript
 /** [project]\karma.conf.js **/
 /* eslint-disable */
@@ -52,7 +53,7 @@ module.exports = function (config) {
 };
 ```
 
-###test-helper for create a mock store
+###changing the test-helper to create a mock store
 ``` javascript
 /** [project]\src\client\app\test-helper.js **/
 /*eslint-disable */
@@ -92,7 +93,7 @@ chaiJQuery(chai, chai.util, jQuery);
 export {mockStoreCreator, renderComponent};
 ```
 
-###testing an action
+##testing an action
 ``` javascript
 /** [project]\src\client\app\todo\actions\todo-actions.spec.js **/
 /*eslint-disable */
@@ -141,6 +142,8 @@ describe('Todo Actions', function () {
   });
 });
 ```
+
+**See if this test passes on your console output**
 <br />
 [< Prev](./real-data.html) | [Home](./) | [Next >](./production-ready.html)
 </xmp>

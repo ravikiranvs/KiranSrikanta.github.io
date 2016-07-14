@@ -70,7 +70,7 @@ TodoFormPage.propTypes = { params: PropTypes.object };
 export default TodoFormPage;
 ```
 
-###adding the route for todo-form
+###adding the route for the todo-form
 ``` javascript
 /** [project]\src\client\app\routes.js **/
 ...
@@ -87,7 +87,7 @@ import TodoFormPage from './todo/components/todo-form-page';
 ```
 
 
-#####add navigation links for the todo-list
+#####add navigation links from the todo-list
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-list-page.js **/
 import {Link} from 'react-router';
@@ -96,7 +96,7 @@ import {Link} from 'react-router';
 ...
 ```
 
-#####edit todo link
+#####ading edit todo links
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-list.js **/
 import {Link} from 'react-router';
@@ -104,7 +104,7 @@ import {Link} from 'react-router';
         <td><Link to={`todo/edit/${index}`}>{todo.title}</Link></td>
 ...
 ```
-Check if routing is working
+**Check to see if routing is working**
 
 ###The todo edit component UI
 [Bootstrap form](http://getbootstrap.com/css/#forms-example)
@@ -156,7 +156,7 @@ describe('Todo Form Page', function () {
 });
 ```
 
-###todo form component
+###The todo form component
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-form-page.js **/
 // import 'babel-polyfill';

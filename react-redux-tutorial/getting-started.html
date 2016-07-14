@@ -6,8 +6,8 @@
 [Home](./) | [Next >](./components.html)
 #Getting Started
 
-###Create project directory
-Create a folder where you'll be creating the app.
+###Creating the project directory
+Create a folder where you'll be creating the react-redux app.
 
 ###npm init
 ```
@@ -20,7 +20,7 @@ use all the defaults.
 [project]> npm i -S react react-dom
 ```
 
-###index.html
+###the index.html
 Create a the `index.html` with the following content
 
 ``` html
@@ -37,7 +37,7 @@ Create a the `index.html` with the following content
 </html>
 ```
 
-###main.js
+###application entry
 Create a the `main.js` with the following content
 
 ``` javascript
@@ -61,12 +61,13 @@ render(
 );
 ```
 
-###webpack
+###using a module bundler
+#####installing webpack
 ```
 [project]> npm i -D webpack
 ```
 
-Create the config file for Webpack
+Creating the config file for Webpack
 ``` javascript
 /** [project]\webpack.config.js **/
 var webpack = require('webpack');
@@ -92,11 +93,12 @@ module.exports =  {
 };
 ```
 
-###Babel
+###ES6
+#####installing Babel
 ```
 [project]> npm i -D babel-loader babel-preset-es2015 babel-preset-react
 ```
-Create Babel configuration file with content
+Creating a Babel configuration file
 ``` javascript
 /** [project]\.babelrc **/
 {
@@ -104,7 +106,7 @@ Create Babel configuration file with content
 }
 ```
 
-###Build and See
+###How to build and see the result
 ```
 [project]> node_modules\.bin\webpack
 ```

@@ -4,10 +4,12 @@
 
 <xmp theme="united" style="display:none;">
 [< Prev](./getting-started.html) | [Home](./) | [Next >](./htrld-eslnt.html)
-#React Components
+#Components
 
-###Using properties
-add attributes to the `<App />` component.
+[Intro to react's components](https://facebook.github.io/react/docs/thinking-in-react.html)
+
+###Using props
+adding properties to the `<App />` component.
 ``` javascript
 /** [project]\src\client\app\main.js **/
 ...
@@ -22,12 +24,12 @@ render(
 );
 ```
 
-Remember to build again
+Remember to build again to see your changes
 ```
 [project]> node_modules\.bin\webpack
 ```
 
-###Creating a child component
+###child components
 Add a new header component
 ``` javascript
 /** [project]\src\client\app\common\components\header.js **/
@@ -45,7 +47,8 @@ class Header extends React.Component {
 
 export default Header;
 ```
-Refer the `<Header>` component in `<App>`
+
+`<App>` to have a child `<Header>` component
 ``` javascript
 /** [project]\src\client\app\main.js **/
 ...
@@ -56,8 +59,9 @@ import Header from './common/components/header'
         </div>
 ...
 ```
+
 ###State
-Modify the `<App>` to have state and use it in a text box.
+Let the `<App>` maintain state and pass it as props to `<Header>`
 ``` javascript
 /** [project]\src\client\app\main.js **/
 import React from 'react';
@@ -85,9 +89,10 @@ render(
   document.getElementById('app')
 );
 ```
+
 Build the app and check. **Notice something wrong!**
 
-###Setting State
+###Canging the State
 Use the textbox's change event to change the `<App>`'s state.
 ``` javascript
 /** [project]\src\client\app\main.js **/

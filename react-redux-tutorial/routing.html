@@ -6,7 +6,7 @@
 [< Prev](./task-runner.html) | [Home](./) | [Next >](./style.html)
 #Routing
 
-###install react-router
+###installing the react-router
 ```
 [project]> npm i -S react-router
 ```
@@ -26,7 +26,7 @@ render(
 );
 ```
 
-routes.js
+setting up the routes
 ``` javascript
 /** [project]\src\client\app\routes.js **/
 import {IndexRoute, Route} from 'react-router';
@@ -41,7 +41,7 @@ export default (
 );
 ```
 
-app.js
+`<App>` now only renders child components
 ``` javascript
 /** [project]\src\client\app\common\components\app.js **/
 import React, {PropTypes} from 'react';
@@ -62,6 +62,7 @@ App.propTypes = {'children': PropTypes.object.isRequired};
 
 export default App;
 ```
+
 Removing the props from the `<Header />` component.
 ``` javascript
 /** [project]\src\client\app\common\components\header.js **/
@@ -80,7 +81,7 @@ class Header extends React.Component {
 export default Header;
 ```
 
-home-page.js
+Creating the `<HomePage>` component
 ``` javascript
 /** [project]\src\client\app\home\components\home-page.js **/
 import React from 'react';

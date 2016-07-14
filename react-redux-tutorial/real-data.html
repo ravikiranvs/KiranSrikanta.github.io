@@ -4,13 +4,16 @@
 
 <xmp theme="united" style="display:none;">
 [< Prev](./time-travel-debugging.html) | [Home](./) | [Next >](./stub-server-calls.html)
-#Express server
+#Serving data using an express server
 ###creating the express server
 
+installing express and webpack middleware for hot reloading
 ```
+npm i -S express
 npm i -D webpack-hot-middleware
 ```
 
+entry file for the express app
 ``` javascript
 /** [project]\src\server\app.js **/
 /* eslint-disable */
@@ -130,7 +133,7 @@ app.listen(3000, function () {
 });
 ```
 
-###webpack config for express
+###webpack config for the express middleware
 ``` javascript
 /** [project]\webpack.config.dev.js **/
 /* eslint-disable */
@@ -166,7 +169,7 @@ module.exports = {
 };
 ```
 
-###babel support for HMR
+###babel support for Hot Module Reloading
 ```
 npm i -D babel-preset-react-hmre
 ```
@@ -182,7 +185,7 @@ npm i -D babel-preset-react-hmre
 }
 ```
 
-### reverting the HTML script referance.
+### reverting the HTML script referance workaround
 ``` html
 <!-- [project]\src\client\public\index.html -->
 ...
@@ -190,17 +193,20 @@ npm i -D babel-preset-react-hmre
 ...
 ```
 
-###add scripts to start the express server.
+###add script command to start the express server.
 ``` javascript
 /** [project]\package.json **/
     "dev": "set NODE_ENV=development&&node src/server/app.js",
 ```
 
-###change the todo api
+###changing the todo api to make server calls
+
+installing whatwg-fetch for making REST calls
 ```
 npm i -S whatwg-fetch
 ```
 
+The todo api
 ``` javascript
 /* [project]\src\client\app\api\todo.js */
 import 'whatwg-fetch';
@@ -235,7 +241,7 @@ const todoApi = {
 export default todoApi;
 ```
 
-#redux-thunk
+#[redux-thunk](https://github.com/gaearon/redux-thunk#whats-a-thunk)
 #####the thunk middleware
 ```
 npm i -D redux-immutable-state-invariant
@@ -357,7 +363,7 @@ store.dispatch(todoActions.loadTodosFromServer());
 ...
 ```
 
-###components to use the new actions.
+###components to use the new server actions.
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-form-page.js **/
 ...

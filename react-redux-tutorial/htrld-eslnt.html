@@ -6,29 +6,29 @@
 [< Prev](./components.html) | [Home](./) | [Next >](./task-runner.html)
 #Hot Reload
 
-###Server content
+###installing webpack's dev server
 install webpack-dev-server
 ```
 [project]> npm i -D webpack-dev-server
 ```
-run webpack-dev-server
+starting the webpack-dev-server
 ```
 [project]> node_modules\.bin\webpack-dev-server --content-base src/client/public --inline --hot --port 9000
 ```
-That's it! Just `Ctrl+S` and see the browser from now on.
+That's it! Make changes and `Ctrl+S` and see the browser automatically refresh.
 
 #Linting
 ###Configuring ES Lint
-install ES Lint
+install eslint
 ```
 [project]> npm i -D eslint eslint-plugin-react eslint-watch
 ```
 
-Generate ES Lint config file 
+Generating the ES Lint config file
 ```
 [project]> node_modules\.bin\eslint --init
 ```
-It's going to ask you a few questions. Answers:
+It's going to ask you a few questions. Here's what you should answer:
 <br />
 <img src="./assets/eslint-op.png" alt="ES Lint Answers"></img>
 <br />
@@ -39,7 +39,7 @@ Slight modification to the `.eslintrc.js` file:
 change `"extends": "eslint:recommended",` to `"extends": ["eslint:recommended", "plugin:react/recommended"],`
 
 ###Run Linting
-run ES Lint on our JavaScript files.
+running ES Lint on our JavaScript files.
 ```
 [project]> node_modules\.bin\eslint src/client/app/**/*.js
 ```  
@@ -49,6 +49,8 @@ Continuously run linting
 ```
 
 ###Time to fix all the errors
+Here is a fix for one of the errors:
+
 Using PropTypes to resolve the issue `'message' is missing in props validation     react/prop-types`
 ``` javascript
 /** example **/
@@ -61,6 +63,8 @@ Component.propTypes = {
 ```
 
 ###Disabling Linting
+You might want to tell eslint to ignore some code or code files. Here is how you would do that:
+
 For a file: `/*eslint-disable */` or `/*eslint-disable rule-name */`
 
 For a single line: put this comment above the code line `//eslint-disable-next-line rule-name`

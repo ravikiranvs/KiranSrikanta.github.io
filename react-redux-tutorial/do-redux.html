@@ -4,7 +4,9 @@
 
 <xmp theme="united" style="display:none;">
 [< Prev](./redux.html) | [Home](./) | [Next >](./time-travel-debugging.html)
-#redux
+#Implementing redux for you app
+
+###installing redux
 
 ```
 npm i -S redux react-redux
@@ -121,7 +123,7 @@ export default function configureStore (initialState) {
 }
 ```
 
-#####Initializing the store
+####Initializing the store
 ``` javascript
 /* [project]\src\client\app\main.js */
 ...
@@ -140,7 +142,7 @@ render(
 );
 ```
 
-###mock store for test helper.
+###test helper to have a mock store
 ``` javascript
 /** [project]\src\client\app\test-helper.js **/
 /*eslint-disable */
@@ -176,8 +178,8 @@ chaiJQuery(chai, chai.util, jQuery);
 export {renderComponent};
 ```
 
-###components to work with redux
-#####the todo list page
+###hooking up components to work with the redux store
+####the todo list page
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-list-page.js **/
 ...
@@ -214,7 +216,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(TodoListPage);
 
 ```
 
-#####the todo form page
+####the todo form page
 ``` javascript
 /** [project]\src\client\app\todo\components\todo-form-page.js **/
 ...
@@ -252,6 +254,8 @@ mapStateToProps = function mapStateToProps(state) {
 
 export default connect(mapStateToProps, mapDispatchToProps)(TodoFormPage);
 ```
+
+**And this saves us from making a server call** 
 <br />
 [< Prev](./redux.html) | [Home](./) | [Next >](./time-travel-debugging.html)
 </xmp>

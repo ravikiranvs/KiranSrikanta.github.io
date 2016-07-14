@@ -107,7 +107,7 @@ module.exports = function (config) {
 ```
 
 ###Our first testcase
-#####helper file for writing tests for components
+#####creating a helper file for writing tests for components
 ``` javascript
 /** [project]\src\client\app\test-helper.js **/
 /*eslint-disable */
@@ -136,7 +136,7 @@ chaiJQuery(chai, chai.util, jQuery);
 export {renderComponent};
 ```
 
-#####testcase
+#####the testcase: Check if the `<Home>` component was rendered with the css class 'HomePage' 
 ``` javascript
 /** [project]\src\client\app\home\components\home-page.spec.js **/
 /*eslint-disable */
@@ -156,7 +156,7 @@ describe('HomePage', function () {
 });
 ```
 
-###Run tests
+###Running tests
 add npm scripts
 ``` javascript
 /** [project]\package.json **/
@@ -177,7 +177,7 @@ Single run
 [project]> npm run test
 ```
 
-Run with build and lint
+Run continuously with build and lint
 ```
 [project]> npm start
 ```

@@ -32,7 +32,7 @@ TodoList.propTypes = {
 export default TodoList;
 ```
 
-###Writing tests for the todo-list
+###Writing tests for the todo-list first
 #####How to start
 ``` javascript
 /** [project]\src\client\app\todo\components\task-list.spec.js **/
@@ -44,7 +44,7 @@ describe('TodoList', function () {
   
 });
 ```
-#####Component has no data.
+#####Tests for when there is no data.
 Show a 'no data' message.
 ``` javascript
 /** [project]\src\client\app\todo\components\task-list.spec.js **/
@@ -66,7 +66,7 @@ Show a 'no data' message.
   });
 ...
 ```
-#####Component has data.
+#####Tests for when component has data.
 ``` javascript
 /** [project]\src\client\app\todo\components\task-list.spec.js **/
 ...
@@ -246,7 +246,7 @@ class TodoListPage extends React.Component {
 export default TodoListPage;
 ```
 
-Check the browser and correct any styling that you dont like.
+**Check the browser and correct any styling that you dont like.**
 <br />
 [< Prev](./new-route.html) | [Home](./) | [Next >](./todo-form.html)
 </xmp>
